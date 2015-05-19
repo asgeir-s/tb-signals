@@ -3,6 +3,8 @@ Microservice used in the coinsignals project.
 
 ## OSX Set Up
 ##### Docker
+Local if when runing docker: localhost
+
 One time setup:
 
 	boot2docker init

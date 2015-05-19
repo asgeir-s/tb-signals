@@ -1,10 +1,13 @@
-test: test-u test-s
+test:test-u test-s
+
+test-s:
+	sbt "testOnly com.cluda.*Spec"
 
 test-u:
-	sbt test
+	sbt "testOnly com.cluda.*Test"
 
 run-l:
-	docker run -p 8888:8888 --rm -it coinsignals/signals
+	docker run -p 8888:8888 -e "RDS_HOSTNAME=192.168.59.3" --rm -it coinsignals/signals
 
 build:
 	sbt assembly
