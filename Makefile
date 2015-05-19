@@ -20,3 +20,10 @@ test-s-s:
 
 deploy-p:
 	cd docker; eb use signals; eb deploy;
+
+setup-db:
+	psql -p 5432 -c "create database coinsignals;"
+	psql -p 5432 -c "CREATE USER testuser PASSWORD 'Password123';"
+	psql -p 5432 -c "GRANT CONNECT ON DATABASE coinsignals TO testuser;"
+	psql -p 5432 -d coinsignals -c "GRANT USAGE ON SCHEMA public to testuser;"
+	psql -p 5432 -d coinsignals -c "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO testuser;"

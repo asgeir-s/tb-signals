@@ -6,6 +6,7 @@ machine:
   environment:
       THE_BRIDGE_IP: $(/sbin/ip route|awk '/default/ { print $3 }')
       AWS_DEFAULT_REGION: us-west-2
+      RDS_HOSTNAME: 172.17.42.1
 
 dependencies:
   pre:
@@ -28,9 +29,11 @@ test:
     - sudo bash -c "echo \"host all all 0.0.0.0/0 trust\" >>
       /etc/postgresql/9.4/main/pg_hba.conf"
     - sudo /etc/init.d/postgresql restart
+    - make setup-db
   override:
     # 172.17.42.1 should be equal to THE_BRIDGE_IP
     - make test-u
+    - make test-s
 
 deployment:
   elasticbeanstalk:
