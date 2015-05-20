@@ -24,7 +24,7 @@ class DatabaseReaderActor extends Actor with ActorLogging {
       val s = sender()
       val signalsTable = TableQuery[SignalTable]((tag: Tag) => new SignalTable(tag, streamID))
 
-      if (maxReturnSize == None) {
+      if (maxReturnSize isEmpty) {
         database.run(signalsTable.sortBy(_.id.desc).result).map {
           case signals: Seq[Signal] =>
             s ! signals

@@ -43,7 +43,7 @@ class Step3_WriteDatabaseActor(notificationActor: ActorRef) extends Actor with A
             else {
               database.run(signalsTable.sortBy(_.id.desc).result.head) map { lastSignal:Signal =>
                 val newSignals = SignalUtil.newSignals(lastSignal, meta)
-                if(newSignals.length > 0) {
+                if(newSignals.nonEmpty) {
                   database.run(signalsTable ++= newSignals) map {
                     case _ =>
                       database.run(signalsTable.sortBy(_.id.desc).take(newSignals.length).result) map {

@@ -22,7 +22,7 @@ class GetSignalsSpec extends TestService {
       val signals = responseAs[String].parseJson.convertTo[List[Signal]]
 
       assert(signals.length == 13)
-      assert(signals.head.id != None)
+      assert(signals.head.id isDefined)
       assert(signals.head.price > 0)
       assert(signals.head.timestamp > 11100L)
     }
@@ -42,7 +42,7 @@ class GetSignalsSpec extends TestService {
       val signals = responseAs[String].parseJson.convertTo[List[Signal]]
 
       assert(signals.length == 1)
-      assert(signals.head.id != None)
+      assert(signals.head.id isDefined)
       assert(signals.head.price > 0)
       assert(signals.head.timestamp > 11100L)
     }

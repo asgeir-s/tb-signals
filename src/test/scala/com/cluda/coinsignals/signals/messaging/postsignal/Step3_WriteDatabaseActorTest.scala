@@ -27,7 +27,7 @@ class Step3_WriteDatabaseActorTest extends MessagingTest {
     val notificationResponds = notificationActor.expectMsgType[Seq[Signal]]
     val theResponds = respondsActor.expectMsgType[Seq[Signal]]
     assert(theResponds.length == 1)
-    assert(theResponds.head.id != None)
+    assert(theResponds.head.id isDefined)
     assert(theResponds.head.change == BigDecimal(0))
     assert(theResponds == notificationResponds)
 
@@ -46,7 +46,7 @@ class Step3_WriteDatabaseActorTest extends MessagingTest {
     val notificationResponds = notificationActor.expectMsgType[Seq[Signal]]
     val theResponds = respondsActor.expectMsgType[Seq[Signal]]
     assert(theResponds.length == 1)
-    assert(theResponds.head.id != None)
+    assert(theResponds.head.id isDefined)
     assert(theResponds.head.change == BigDecimal(1))
     assert(theResponds == notificationResponds)
   }
@@ -58,7 +58,7 @@ class Step3_WriteDatabaseActorTest extends MessagingTest {
     val notificationResponds1 = notificationActor.expectMsgType[Seq[Signal]]
     val theResponds1 = respondsActor.expectMsgType[Seq[Signal]]
     assert(theResponds1.length == 1)
-    assert(theResponds1.head.id != None)
+    assert(theResponds1.head.id isDefined)
     assert(theResponds1.head.change == BigDecimal(0))
     assert(theResponds1 == notificationResponds1)
 
@@ -68,7 +68,7 @@ class Step3_WriteDatabaseActorTest extends MessagingTest {
     val notificationResponds2 = notificationActor.expectMsgType[Seq[Signal]]
     val theResponds2 = respondsActor.expectMsgType[Seq[Signal]]
     assert(theResponds2.length == 1)
-    assert(theResponds2.head.id != None)
+    assert(theResponds2.head.id isDefined)
     assert(theResponds2.head.change == BigDecimal(-0.5))
     assert(theResponds2 == notificationResponds2)
   }
@@ -80,7 +80,7 @@ class Step3_WriteDatabaseActorTest extends MessagingTest {
     val notificationResponds1 = notificationActor.expectMsgType[Seq[Signal]]
     val theResponds1 = respondsActor.expectMsgType[Seq[Signal]]
     assert(theResponds1.length == 1)
-    assert(theResponds1.head.id != None)
+    assert(theResponds1.head.id isDefined)
     assert(theResponds1.head.change == BigDecimal(0))
     assert(theResponds1 == notificationResponds1)
 
@@ -89,7 +89,7 @@ class Step3_WriteDatabaseActorTest extends MessagingTest {
     val notificationResponds2 = notificationActor.expectMsgType[Seq[Signal]]
     val theResponds2 = respondsActor.expectMsgType[Seq[Signal]]
     assert(theResponds2.length == 1)
-    assert(theResponds2.head.id != None)
+    assert(theResponds2.head.id isDefined)
     assert(theResponds2.head.change == BigDecimal(0.5))
     assert(theResponds2 == notificationResponds2)
 
@@ -102,7 +102,7 @@ class Step3_WriteDatabaseActorTest extends MessagingTest {
     val notificationResponds1 = notificationActor.expectMsgType[Seq[Signal]]
     val theResponds1 = respondsActor.expectMsgType[Seq[Signal]]
     assert(theResponds1.length == 1)
-    assert(theResponds1.head.id != None)
+    assert(theResponds1.head.id isDefined)
     assert(theResponds1.head.change == BigDecimal(0))
     assert(theResponds1 == notificationResponds1)
 
@@ -111,7 +111,7 @@ class Step3_WriteDatabaseActorTest extends MessagingTest {
     val notificationResponds2 = notificationActor.expectMsgType[Seq[Signal]]
     val theResponds2 = respondsActor.expectMsgType[Seq[Signal]]
     assert(theResponds2.length == 1)
-    assert(theResponds2.head.id != None)
+    assert(theResponds2.head.id isDefined)
     assert(theResponds2.head.change == BigDecimal(0.5))
     assert(theResponds2 == notificationResponds2)
   }
@@ -123,7 +123,7 @@ class Step3_WriteDatabaseActorTest extends MessagingTest {
     val notificationResponds1 = notificationActor.expectMsgType[Seq[Signal]]
     val theResponds1 = respondsActor.expectMsgType[Seq[Signal]]
     assert(theResponds1.length == 1)
-    assert(theResponds1.head.id != None)
+    assert(theResponds1.head.id isDefined)
     assert(theResponds1.head.change == BigDecimal(0))
     assert(theResponds1 == notificationResponds1)
 
@@ -132,7 +132,7 @@ class Step3_WriteDatabaseActorTest extends MessagingTest {
     val notificationResponds2 = notificationActor.expectMsgType[Seq[Signal]]
     val theResponds2 = respondsActor.expectMsgType[Seq[Signal]]
     assert(theResponds2.length == 1)
-    assert(theResponds2.head.id != None)
+    assert(theResponds2.head.id isDefined)
     assert(theResponds2.head.change == BigDecimal(-1))
     assert(theResponds2 == notificationResponds2)
   }
@@ -144,7 +144,7 @@ class Step3_WriteDatabaseActorTest extends MessagingTest {
     val notificationResponds1 = notificationActor.expectMsgType[Seq[Signal]]
     val theResponds1 = respondsActor.expectMsgType[Seq[Signal]]
     assert(theResponds1.length == 1)
-    assert(theResponds1.head.id != None)
+    assert(theResponds1.head.id isDefined)
     assert(theResponds1.head.change == BigDecimal(0))
     assert(theResponds1 == notificationResponds1)
 
@@ -153,9 +153,9 @@ class Step3_WriteDatabaseActorTest extends MessagingTest {
     val notificationResponds2 = notificationActor.expectMsgType[Seq[Signal]]
     val theResponds2 = respondsActor.expectMsgType[Seq[Signal]]
     assert(theResponds2.length == 2)
-    assert(theResponds2(0).id != None)
+    assert(theResponds2(0).id isDefined)
     assert(theResponds2(0).change == BigDecimal(0))
-    assert(theResponds2(1).id != None)
+    assert(theResponds2(1).id isDefined)
     assert(theResponds2(1).change == BigDecimal(1))
     assert(theResponds2 == notificationResponds2)
 
@@ -172,7 +172,7 @@ class Step3_WriteDatabaseActorTest extends MessagingTest {
     val notificationResponds1 = notificationActor.expectMsgType[Seq[Signal]]
     val theResponds1 = respondsActor.expectMsgType[Seq[Signal]]
     assert(theResponds1.length == 1)
-    assert(theResponds1.head.id != None)
+    assert(theResponds1.head.id isDefined)
     assert(theResponds1.head.change == BigDecimal(0))
     assert(theResponds1 == notificationResponds1)
 
@@ -181,9 +181,9 @@ class Step3_WriteDatabaseActorTest extends MessagingTest {
     val notificationResponds2 = notificationActor.expectMsgType[Seq[Signal]]
     val theResponds2 = respondsActor.expectMsgType[Seq[Signal]]
     assert(theResponds2.length == 2)
-    assert(theResponds2(0).id != None)
+    assert(theResponds2(0).id isDefined)
     assert(theResponds2(0).change == BigDecimal(0))
-    assert(theResponds2(1).id != None)
+    assert(theResponds2(1).id isDefined)
     assert(theResponds2(1).change == BigDecimal(-1))
     assert(theResponds2 == notificationResponds2)
 

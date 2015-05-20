@@ -19,9 +19,9 @@ class Step2_GetPriceTimeActorTest extends MessagingTest {
     "get the price for the exchange(bitstamp), add it to the 'Meta' and send 'Meta' to the 'databaseActor'" in {
     actor ! Meta(None, "test-id", 1, Some("bitstamp"), None, None)
     val theResponds = writeDatabaseActor.expectMsgType[Meta]
-    assert(theResponds.price != None)
+    assert(theResponds.price isDefined)
     assert(theResponds.price.get >= 0)
-    assert(theResponds.timestamp != None)
+    assert(theResponds.timestamp isDefined)
     assert(theResponds.timestamp.get >= 0)
   }
 
@@ -29,9 +29,9 @@ class Step2_GetPriceTimeActorTest extends MessagingTest {
     "get the price for the exchange(bitfinex), add it to the 'Meta' and send 'Meta' to the 'databaseActor'" in {
     actor ! Meta(None, "test-id", 1, Some("bitfinex"), None, None)
     val theResponds = writeDatabaseActor.expectMsgType[Meta]
-    assert(theResponds.price != None)
+    assert(theResponds.price isDefined)
     assert(theResponds.price.get >= 0)
-    assert(theResponds.timestamp != None)
+    assert(theResponds.timestamp isDefined)
     assert(theResponds.timestamp.get >= 0)
   }
 

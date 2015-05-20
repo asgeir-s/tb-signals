@@ -30,7 +30,7 @@ class Step2_GetPriceTimeActor(writeDatabaseActor: ActorRef) extends Actor with A
         None
       }
     }
-    if (exchange != None) {
+    if (exchange isDefined) {
       val marketDataService: PollingMarketDataService = exchange.get.getPollingMarketDataService
       if (refreshTime(exchangeName) + 2000 <= Calendar.getInstance().getTimeInMillis) {
         try {
@@ -59,7 +59,7 @@ class Step2_GetPriceTimeActor(writeDatabaseActor: ActorRef) extends Actor with A
     case meta: Meta =>
       log.info("Step2_GetPriceTimeActor got meta: " + meta)
       val priceTime = getPrice(meta.exchange.get)
-      if (priceTime != None) {
+      if (priceTime isDefined) {
         log.info("at time " + priceTime.get._2 + " price for " + meta.exchange.get + " is " + priceTime.get._1)
         writeDatabaseActor ! MetaUtil.setPriceTime(meta, priceTime.get._1, priceTime.get._2)
       }
