@@ -19,15 +19,6 @@ class Step3_WriteDatabaseAndNotifyActor extends Actor with ActorLogging {
 
   implicit val executionContext: ExecutionContext = context.system.dispatcher
 
-  def tableExists(table: TableQuery[_]): Boolean = {
-    try {
-      table.exists
-      true
-    } catch {
-      case e: org.postgresql.util.PSQLException if e.toString.contains("does not exist") =>
-        false
-    }
-  }
 
   override def receive: Receive = {
     case meta: Meta =>

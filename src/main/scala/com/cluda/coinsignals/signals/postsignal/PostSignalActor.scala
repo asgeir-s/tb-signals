@@ -18,10 +18,10 @@ class PostSignalActor(getExchangeActor: ActorRef) extends Actor with ActorLoggin
 
   def responder(respondTo: ActorRef): Receive = {
     case signals: Seq[Signal] =>
-      log.info("Got signal(s) back: " + signals)
+      log.info("PostSignalActor: Got signal(s) back: " + signals)
       import SignalJsonProtocol._
       import spray.json._
-      respondTo ! HttpResponse(Accepted, entity = signals.map(_.toJson).toJson.prettyPrint)
+      respondTo ! HttpResponse(OK, entity = signals.map(_.toJson).toJson.prettyPrint)
       self ! PoisonPill
 
     case e: SignalProcessingException if e.reason.contains("Conflict") =>

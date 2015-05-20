@@ -8,8 +8,10 @@ import akka.http.scaladsl.server.Directives._
 import akka.pattern.ask
 import akka.stream.FlowMaterializer
 import akka.util.Timeout
+import com.cluda.coinsignals.signals.getsignal.GetSignalsActor
 import com.cluda.coinsignals.signals.model.Meta
 import com.cluda.coinsignals.signals.postsignal.PostSignalActor
+import com.cluda.coinsignals.signals.protocoll.GetSignals
 import com.typesafe.config.Config
 
 import scala.concurrent.{ExecutionContextExecutor, Future}
@@ -30,7 +32,9 @@ trait Service {
 
   val getExchangeActor: ActorRef
 
-  val databaseActor: ActorRef
+  val databaseWriterActor: ActorRef
+
+  val databaseReaderActor: ActorRef
 
   val getPriceActor: ActorRef
 
@@ -53,8 +57,8 @@ trait Service {
       pathPrefix("streams" / Segment) { streamID =>
         pathPrefix("signals") {
           post {
-            entity(as[String]) { signal => ctx =>
-              ctx.complete {
+            entity(as[String]) { signal =>
+              complete {
                 if (List(-1, 0, 1).contains(signal.toInt)) {
                   perRequestActor[Meta](
                     PostSignalActor.props(getExchangeActor),
@@ -66,17 +70,22 @@ trait Service {
                 }
               }
             }
-          }~
+          } ~
             get {
               complete {
-                "get all signals for stream with id " + streamID
+                perRequestActor[GetSignals](
+                  GetSignalsActor.props(databaseReaderActor),
+                  GetSignals(streamID)
+                )
               }
             }
         } ~
           pathPrefix("status") {
             complete {
-              // return the last signal
-              "the streams current status with id " + streamID
+              perRequestActor[GetSignals](
+                GetSignalsActor.props(databaseReaderActor),
+                GetSignals(streamID, Some(1))
+              )
             }
           }
 

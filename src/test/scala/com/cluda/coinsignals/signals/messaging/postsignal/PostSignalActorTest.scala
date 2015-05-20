@@ -1,10 +1,11 @@
-package com.cluda.coinsignals.signals.messaging.post
+package com.cluda.coinsignals.signals.messaging.postsignal
 
 import akka.actor.Props
 import akka.http.scaladsl.model.HttpResponse
 import akka.http.scaladsl.model.StatusCodes._
 import akka.testkit.{TestActorRef, TestProbe}
-import com.cluda.coinsignals.signals.messaging.{MessagingTest, TestData}
+import com.cluda.coinsignals.signals.TestData
+import com.cluda.coinsignals.signals.messaging.MessagingTest
 import com.cluda.coinsignals.signals.model.{Meta, SignalJsonProtocol}
 import com.cluda.coinsignals.signals.postsignal.PostSignalActor
 import com.cluda.coinsignals.signals.protocoll.SignalProcessingException
@@ -38,7 +39,7 @@ class PostSignalActorTest extends MessagingTest {
     import SignalJsonProtocol._
     import spray.json._
 
-    assert(responseParent == HttpResponse(Accepted, entity = """[""" + TestData.signal1.toJson.prettyPrint + """]"""))
+    assert(responseParent == HttpResponse(OK, entity = """[""" + TestData.signal1.toJson.prettyPrint + """]"""))
 
     // check that the actor killed itself
     actor ! TestData.signal1

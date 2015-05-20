@@ -7,7 +7,7 @@ import slick.lifted.Tag
 class SignalTable(tag: Tag, streamId: String) extends Table[Signal](tag, streamId.toString) {
   val dbBigDecimalType = "DECIMAL(13,10)"
 
-  def id = column[String]("id", O.PrimaryKey, O.AutoInc)
+  def id = column[Long]("id", O.PrimaryKey, O.AutoInc)
 
   def signal = column[Int]("signal")
 

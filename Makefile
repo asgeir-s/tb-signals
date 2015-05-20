@@ -1,4 +1,5 @@
-test:test-u test-s
+test:
+	sbt test
 
 test-s:
 	sbt "testOnly com.cluda.*Spec"

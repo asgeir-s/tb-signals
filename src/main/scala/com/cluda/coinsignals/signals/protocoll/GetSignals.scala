@@ -1,3 +1,3 @@
 package com.cluda.coinsignals.signals.protocoll
 
-case class GetSignals(streamID: String, maxReturnSize: Int = -1)
+case class GetSignals(streamID: String, maxReturnSize: Option[Int] = None)

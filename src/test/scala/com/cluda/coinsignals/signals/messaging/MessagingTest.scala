@@ -16,8 +16,11 @@ OptionValues with Inside with Inspectors with BeforeAndAfterAll {
 
   implicit val timeout = Timeout(10 second)
   implicit val context = system.dispatcher
+  
+  def afterTest(): Unit ={}
 
   override protected def afterAll() {
+    afterTest()
     TestKit.shutdownActorSystem(system)
     super.afterAll()
     system.shutdown()

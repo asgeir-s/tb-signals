@@ -1,4 +1,4 @@
-package com.cluda.coinsignals.signals.messaging.post
+package com.cluda.coinsignals.signals.messaging.postsignal
 
 import akka.actor.Props
 import akka.testkit.{TestActorRef, TestProbe}
