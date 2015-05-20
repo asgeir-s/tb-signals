@@ -1,6 +1,6 @@
 package com.cluda.coinsignals.signals.postsignal
 
-import akka.actor.{Actor, ActorLogging}
+import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import com.cluda.coinsignals.signals.database.SignalTable
 import com.cluda.coinsignals.signals.model.{Meta, Signal}
 import com.cluda.coinsignals.signals.protocoll.SignalProcessingException
@@ -13,7 +13,7 @@ import slick.lifted.TableQuery
 
 import scala.concurrent.ExecutionContext
 
-class Step3_WriteDatabaseAndNotifyActor extends Actor with ActorLogging {
+class Step3_WriteDatabaseActor(notificationActor: ActorRef) extends Actor with ActorLogging {
 
   val database: JdbcBackend.DatabaseDef = Database.forConfig("database", ConfigFactory.load())
 
@@ -36,6 +36,7 @@ class Step3_WriteDatabaseAndNotifyActor extends Actor with ActorLogging {
                   database.run(signalsTable.sortBy(_.id.desc).take(1).result) map {
                     case theNewSignals: Seq[Signal] =>
                       meta.respondsActor.get ! theNewSignals
+                      notificationActor ! theNewSignals
                   }
               }
             }
@@ -48,6 +49,7 @@ class Step3_WriteDatabaseAndNotifyActor extends Actor with ActorLogging {
                       database.run(signalsTable.sortBy(_.id.desc).take(newSignals.length).result) map {
                         case theNewSignals: Seq[Signal] =>
                           meta.respondsActor.get ! theNewSignals
+                          notificationActor ! theNewSignals
                       }
                   }
                 }
@@ -61,4 +63,8 @@ class Step3_WriteDatabaseAndNotifyActor extends Actor with ActorLogging {
       }
   }
 
+}
+
+object Step3_WriteDatabaseActor {
+  def props(notificationActor: ActorRef): Props = Props(new Step3_WriteDatabaseActor(notificationActor))
 }

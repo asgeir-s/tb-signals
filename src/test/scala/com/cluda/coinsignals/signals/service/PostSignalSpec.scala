@@ -5,7 +5,6 @@ import com.cluda.coinsignals.signals.DatabaseUtil
 import com.cluda.coinsignals.signals.model.{Signal, SignalJsonProtocol}
 
 
-
 class PostSignalSpec extends TestService {
 
   val streamID = "postsignalspec"

@@ -1,14 +1,13 @@
 package com.cluda.coinsignals.signals.messaging.postsignal
 
-import akka.actor.Props
 import akka.testkit.{TestActorRef, TestProbe}
 import com.cluda.coinsignals.signals.DatabaseUtil
 import com.cluda.coinsignals.signals.messaging.MessagingTest
 import com.cluda.coinsignals.signals.model.{Meta, Signal}
-import com.cluda.coinsignals.signals.postsignal.Step3_WriteDatabaseAndNotifyActor
+import com.cluda.coinsignals.signals.postsignal.Step3_WriteDatabaseActor
 import com.cluda.coinsignals.signals.protocoll.SignalProcessingException
 
-class Step3_WriteDatabaseAndNotifyActorTest extends MessagingTest {
+class Step3_WriteDatabaseActorTest extends MessagingTest {
 
   val testID = "step3writedatabaseandnotifyactortest"
 
@@ -18,16 +17,19 @@ class Step3_WriteDatabaseAndNotifyActorTest extends MessagingTest {
 
   // mocks
   val respondsActor = TestProbe()
+  val notificationActor = TestProbe()
 
-  val actor = TestActorRef(Props[Step3_WriteDatabaseAndNotifyActor], "getPriceActor")
+  val actor = TestActorRef(Step3_WriteDatabaseActor.props(notificationActor.ref), "getPriceActor")
 
   "when receiving 'Meta' about a new signal LONG it" should
     "write the signal to the database and return the new signal to the 'respondsActor'" in {
     actor ! Meta(Some(respondsActor.ref), testID, 1, Some("bitstamp"), Some(BigDecimal(400)), Some(2999999l))
+    val notificationResponds = notificationActor.expectMsgType[Seq[Signal]]
     val theResponds = respondsActor.expectMsgType[Seq[Signal]]
     assert(theResponds.length == 1)
     assert(theResponds.head.id != None)
     assert(theResponds.head.change == BigDecimal(0))
+    assert(theResponds == notificationResponds)
 
   }
 
@@ -35,131 +37,160 @@ class Step3_WriteDatabaseAndNotifyActorTest extends MessagingTest {
     "return a 'SignalProcessingException'" in {
     actor ! Meta(Some(respondsActor.ref), testID, 1, Some("bitstamp"), Some(BigDecimal(220)), Some(3999999l))
     val theResponds = respondsActor.expectMsgType[SignalProcessingException]
+    notificationActor.expectNoMsg()
   }
 
   "when receiving 'Meta' about a new CLOSE signal it" should
     "write the signal to the database and return the new signal to the 'respondsActor'. And the change could be set correctly" in {
     actor ! Meta(Some(respondsActor.ref), testID, 0, Some("bitstamp"), Some(BigDecimal(800)), Some(2999999l))
+    val notificationResponds = notificationActor.expectMsgType[Seq[Signal]]
     val theResponds = respondsActor.expectMsgType[Seq[Signal]]
     assert(theResponds.length == 1)
     assert(theResponds.head.id != None)
     assert(theResponds.head.change == BigDecimal(1))
+    assert(theResponds == notificationResponds)
   }
 
   "it" should
     "handle a losing trade LONG -> CLOSE" in {
     // take LONG
     actor ! Meta(Some(respondsActor.ref), testID, 1, Some("bitstamp"), Some(BigDecimal(200)), Some(2999999l))
+    val notificationResponds1 = notificationActor.expectMsgType[Seq[Signal]]
     val theResponds1 = respondsActor.expectMsgType[Seq[Signal]]
     assert(theResponds1.length == 1)
     assert(theResponds1.head.id != None)
     assert(theResponds1.head.change == BigDecimal(0))
+    assert(theResponds1 == notificationResponds1)
+
 
     // CLOSE it
     actor ! Meta(Some(respondsActor.ref), testID, 0, Some("bitstamp"), Some(BigDecimal(100)), Some(2999999l))
+    val notificationResponds2 = notificationActor.expectMsgType[Seq[Signal]]
     val theResponds2 = respondsActor.expectMsgType[Seq[Signal]]
     assert(theResponds2.length == 1)
     assert(theResponds2.head.id != None)
     assert(theResponds2.head.change == BigDecimal(-0.5))
+    assert(theResponds2 == notificationResponds2)
   }
 
   "it" should
     "handle a winning trade LONG -> CLOSE" in {
     // take LONG
     actor ! Meta(Some(respondsActor.ref), testID, 1, Some("bitstamp"), Some(BigDecimal(100)), Some(2999999l))
+    val notificationResponds1 = notificationActor.expectMsgType[Seq[Signal]]
     val theResponds1 = respondsActor.expectMsgType[Seq[Signal]]
     assert(theResponds1.length == 1)
     assert(theResponds1.head.id != None)
     assert(theResponds1.head.change == BigDecimal(0))
+    assert(theResponds1 == notificationResponds1)
 
     // CLOSE it
     actor ! Meta(Some(respondsActor.ref), testID, 0, Some("bitstamp"), Some(BigDecimal(150)), Some(2999999l))
+    val notificationResponds2 = notificationActor.expectMsgType[Seq[Signal]]
     val theResponds2 = respondsActor.expectMsgType[Seq[Signal]]
     assert(theResponds2.length == 1)
     assert(theResponds2.head.id != None)
     assert(theResponds2.head.change == BigDecimal(0.5))
+    assert(theResponds2 == notificationResponds2)
+
   }
 
   "it" should
     "handle a winning trade SHORT -> CLOSE" in {
     // take SHORT
     actor ! Meta(Some(respondsActor.ref), testID, -1, Some("bitstamp"), Some(BigDecimal(200)), Some(2999999l))
+    val notificationResponds1 = notificationActor.expectMsgType[Seq[Signal]]
     val theResponds1 = respondsActor.expectMsgType[Seq[Signal]]
     assert(theResponds1.length == 1)
     assert(theResponds1.head.id != None)
     assert(theResponds1.head.change == BigDecimal(0))
+    assert(theResponds1 == notificationResponds1)
 
     // CLOSE it
     actor ! Meta(Some(respondsActor.ref), testID, 0, Some("bitstamp"), Some(BigDecimal(100)), Some(2999999l))
+    val notificationResponds2 = notificationActor.expectMsgType[Seq[Signal]]
     val theResponds2 = respondsActor.expectMsgType[Seq[Signal]]
     assert(theResponds2.length == 1)
     assert(theResponds2.head.id != None)
     assert(theResponds2.head.change == BigDecimal(0.5))
+    assert(theResponds2 == notificationResponds2)
   }
 
   "it" should
     "handle a losing trade SHORT -> CLOSE" in {
     // take SHORT
     actor ! Meta(Some(respondsActor.ref), testID, -1, Some("bitstamp"), Some(BigDecimal(200)), Some(2999999l))
+    val notificationResponds1 = notificationActor.expectMsgType[Seq[Signal]]
     val theResponds1 = respondsActor.expectMsgType[Seq[Signal]]
     assert(theResponds1.length == 1)
     assert(theResponds1.head.id != None)
     assert(theResponds1.head.change == BigDecimal(0))
+    assert(theResponds1 == notificationResponds1)
 
     // CLOSE it
     actor ! Meta(Some(respondsActor.ref), testID, 0, Some("bitstamp"), Some(BigDecimal(400)), Some(2999999l))
+    val notificationResponds2 = notificationActor.expectMsgType[Seq[Signal]]
     val theResponds2 = respondsActor.expectMsgType[Seq[Signal]]
     assert(theResponds2.length == 1)
     assert(theResponds2.head.id != None)
     assert(theResponds2.head.change == BigDecimal(-1))
+    assert(theResponds2 == notificationResponds2)
   }
 
   "it" should
     "handle a position change from SHORT to LONG" in {
     // take LONG
     actor ! Meta(Some(respondsActor.ref), testID, 1, Some("bitstamp"), Some(BigDecimal(200)), Some(2999999l))
+    val notificationResponds1 = notificationActor.expectMsgType[Seq[Signal]]
     val theResponds1 = respondsActor.expectMsgType[Seq[Signal]]
     assert(theResponds1.length == 1)
     assert(theResponds1.head.id != None)
     assert(theResponds1.head.change == BigDecimal(0))
+    assert(theResponds1 == notificationResponds1)
 
     // take SHORT
     actor ! Meta(Some(respondsActor.ref), testID, -1, Some("bitstamp"), Some(BigDecimal(400)), Some(2999999l))
+    val notificationResponds2 = notificationActor.expectMsgType[Seq[Signal]]
     val theResponds2 = respondsActor.expectMsgType[Seq[Signal]]
     assert(theResponds2.length == 2)
     assert(theResponds2(0).id != None)
     assert(theResponds2(0).change == BigDecimal(0))
     assert(theResponds2(1).id != None)
     assert(theResponds2(1).change == BigDecimal(1))
+    assert(theResponds2 == notificationResponds2)
 
     // CLOSE it
     actor ! Meta(Some(respondsActor.ref), testID, 0, Some("bitstamp"), Some(BigDecimal(100)), Some(2999999l))
     respondsActor.expectMsgType[Seq[Signal]]
-
+    notificationActor.expectMsgType[Seq[Signal]]
   }
 
   "it" should
     "handle a position change from LONG to SHORT" in {
     // take SHORT
     actor ! Meta(Some(respondsActor.ref), testID, -1, Some("bitstamp"), Some(BigDecimal(200)), Some(2999999l))
+    val notificationResponds1 = notificationActor.expectMsgType[Seq[Signal]]
     val theResponds1 = respondsActor.expectMsgType[Seq[Signal]]
     assert(theResponds1.length == 1)
     assert(theResponds1.head.id != None)
     assert(theResponds1.head.change == BigDecimal(0))
+    assert(theResponds1 == notificationResponds1)
 
     // take LONG
     actor ! Meta(Some(respondsActor.ref), testID, 1, Some("bitstamp"), Some(BigDecimal(400)), Some(2999999l))
+    val notificationResponds2 = notificationActor.expectMsgType[Seq[Signal]]
     val theResponds2 = respondsActor.expectMsgType[Seq[Signal]]
     assert(theResponds2.length == 2)
     assert(theResponds2(0).id != None)
     assert(theResponds2(0).change == BigDecimal(0))
     assert(theResponds2(1).id != None)
     assert(theResponds2(1).change == BigDecimal(-1))
+    assert(theResponds2 == notificationResponds2)
 
     // CLOSE it
     actor ! Meta(Some(respondsActor.ref), testID, 0, Some("bitstamp"), Some(BigDecimal(100)), Some(2999999l))
     respondsActor.expectMsgType[Seq[Signal]]
-
+    notificationActor.expectMsgType[Seq[Signal]]
   }
 
 }

@@ -38,6 +38,8 @@ trait Service {
 
   val getPriceActor: ActorRef
 
+  val notificationActor: ActorRef
+
   /**
    * Start a actor and pass it the decodedHttpRequest.
    * Returns a future. If anything fails it returns HttpResponse with "BadRequest",
