@@ -9,5 +9,5 @@ import spray.json.DefaultJsonProtocol
 case class Signal(id: Option[Long], signal: Int, timestamp: Long, price: BigDecimal, change: BigDecimal, value: BigDecimal)
 
 object SignalJsonProtocol extends DefaultJsonProtocol {
-  implicit val colorFormat = jsonFormat6(Signal)
+  implicit val signalFormat = jsonFormat6(Signal)
 }
