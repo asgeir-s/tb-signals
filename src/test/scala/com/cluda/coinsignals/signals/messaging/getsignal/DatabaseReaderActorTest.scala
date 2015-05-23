@@ -6,7 +6,7 @@ import com.cluda.coinsignals.signals.DatabaseUtil
 import com.cluda.coinsignals.signals.getsignal.DatabaseReaderActor
 import com.cluda.coinsignals.signals.messaging.MessagingTest
 import com.cluda.coinsignals.signals.model.Signal
-import com.cluda.coinsignals.signals.protocoll.{DatabaseReadException, GetSignals}
+import com.cluda.coinsignals.signals.protocoll.{GetSignalsParams, DatabaseReadException, GetSignals}
 
 
 class DatabaseReaderActorTest extends MessagingTest {
@@ -43,7 +43,7 @@ class DatabaseReaderActorTest extends MessagingTest {
     val getSignalsActor = TestProbe()
     val actor = TestActorRef(Props[DatabaseReaderActor], "DatabaseReaderActor3")
 
-    getSignalsActor.send(actor, GetSignals(testStream, Some(3)))
+    getSignalsActor.send(actor, GetSignals(testStream, GetSignalsParams(lastN = Some(3))))
     val respond = getSignalsActor.expectMsgType[Seq[Signal]]
     assert(respond.length == 3)
     respond.foreach(x => assert(x.id.get > 10))
@@ -55,7 +55,7 @@ class DatabaseReaderActorTest extends MessagingTest {
     val getSignalsActor = TestProbe()
     val actor = TestActorRef(Props[DatabaseReaderActor], "DatabaseReaderActor4")
 
-    getSignalsActor.send(actor, GetSignals(testStream, Some(10)))
+    getSignalsActor.send(actor, GetSignals(testStream, GetSignalsParams(lastN = Some(10))))
     val respond = getSignalsActor.expectMsgType[Seq[Signal]]
     assert(respond.length == 10)
     respond.foreach(x => assert(x.id.get > 3))

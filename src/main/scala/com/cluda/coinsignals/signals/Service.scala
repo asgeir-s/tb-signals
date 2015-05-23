@@ -11,7 +11,7 @@ import akka.util.Timeout
 import com.cluda.coinsignals.signals.getsignal.GetSignalsActor
 import com.cluda.coinsignals.signals.model.Meta
 import com.cluda.coinsignals.signals.postsignal.PostSignalActor
-import com.cluda.coinsignals.signals.protocoll.GetSignals
+import com.cluda.coinsignals.signals.protocoll.{GetSignals, GetSignalsParams}
 import com.typesafe.config.Config
 
 import scala.concurrent.{ExecutionContextExecutor, Future}
@@ -74,11 +74,18 @@ trait Service {
             }
           } ~
             get {
-              complete {
-                perRequestActor[GetSignals](
-                  GetSignalsActor.props(databaseReaderActor),
-                  GetSignals(streamID)
-                )
+              parameters('fromId.as[Long].?, 'toId.as[Long].?, 'afterTime.as[Long].?, 'beforeTime.as[Long].?, 'lastN.as[Int].?).as(GetSignalsParams) { params =>
+                complete {
+                  if(params.isValid) {
+                    perRequestActor[GetSignals](
+                      GetSignalsActor.props(databaseReaderActor),
+                      GetSignals(streamID, params)
+                    )
+                  }
+                  else {
+                    HttpResponse(BadRequest, entity = "invalid combination of parameters")
+                  }
+                }
               }
             }
         } ~
@@ -86,7 +93,7 @@ trait Service {
             complete {
               perRequestActor[GetSignals](
                 GetSignalsActor.props(databaseReaderActor),
-                GetSignals(streamID, Some(1))
+                GetSignals(streamID, GetSignalsParams(lastN = Some(1)))
               )
             }
           }

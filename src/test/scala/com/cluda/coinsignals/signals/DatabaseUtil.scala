@@ -35,7 +35,7 @@ object DatabaseUtil {
     database.run(signalsTable.schema.create)
 
     Await.result(database.run(
-      signalsTable ++= TestData.signalSeq
+      signalsTable ++= TestData.signalSeq.reverse
     ) map(x => println("database created")), 5 seconds)
   }
 

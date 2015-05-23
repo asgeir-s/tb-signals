@@ -30,3 +30,12 @@ One time setup:
 	-deploy-s (deploy on staging)
 	-test-s-s (service tests ageins staging)
 	-deploy-p (deploy in production)
+	
+## Valid GET requests parameter combinations:
+	fromId,   toId      	=>  alle signaler mellom 			(not including)
+	afterTime, beforeTime   =>  alle signaler mellom 			(not including)
+	afterId              	=>  alle signaler fra id og opp 	(not including)
+	toId                	=>  alle signaler før id'en 		(not including)
+	afterTime            	=>  alle signaler fra tid til nå 	(not including)
+	beforeTime              =>  alle signaler før tidspunktet 	(not including)
+	lastN		        	=>  returnerer siste n signaler

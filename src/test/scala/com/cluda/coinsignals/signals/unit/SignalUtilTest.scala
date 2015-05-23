@@ -8,11 +8,11 @@ import com.cluda.coinsignals.signals.util.SignalUtil
 class SignalUtilTest extends UnitTest {
 
   def signalsValuesEqual(signal1: Signal, signal2: Signal): Boolean = {
-    signal1.change.toLong == signal2.change.toLong &&
+    signal1.change.toDouble == signal2.change.toDouble &&
       signal1.price == signal2.price &&
       signal1.signal == signal2.signal &&
       signal1.timestamp == signal2.timestamp &&
-      signal1.value.toLong == signal2.value.toLong
+      signal1.value.toDouble == signal2.value.toDouble
   }
 
   "newSignals function" should
