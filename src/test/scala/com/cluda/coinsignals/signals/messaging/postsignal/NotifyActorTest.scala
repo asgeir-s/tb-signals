@@ -41,13 +41,13 @@ class NotifyActorTest extends MessagingTest {
 
   "when receiving a signal it" should
     "should send a notification to the SNS topic with the signal" in {
-    val actor = TestActorRef(Props(new NotifyActor(topicArn)), "notifyActor1")
+    val actor = TestActorRef(Props[NotifyActor], "notifyActor1")
     actor ! Seq(TestData.signal1)
   }
 
   "when receiving multiple signals it" should
     "should send a notification to the SNS topic with the signals" in {
-    val actor = TestActorRef(Props(new NotifyActor(topicArn)), "notifyActor2")
+    val actor = TestActorRef(Props[NotifyActor], "notifyActor2")
     actor ! Seq(TestData.signalSeq(11), TestData.signalSeq(12))
   }
 

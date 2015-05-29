@@ -32,12 +32,12 @@ object TestData {
   )
 
   val metaSignalSeqMath = Seq(
-    Meta(None, "test-id-math", 0, Some("bitstamp"), Some(975), Some(timestamp - 70000)),
-    Meta(None, "test-id-math", 1, Some("bitstamp"), Some(650), Some(timestamp - 80000)),
-    Meta(None, "test-id-math", 0, Some("bitstamp"), Some(450), Some(timestamp - 90000)),
-    Meta(None, "test-id-math", -1, Some("bitstamp"), Some(300), Some(timestamp - 100000)),
-    Meta(None, "test-id-math", 0, Some("bitstamp"), Some(200), Some(timestamp - 110000)),
-    Meta(None, "test-id-math", 1, Some("bitstamp"), Some(100), Some(timestamp - 120000))
+    Meta(None, "test-id-math", 0, Some("bitstamp"), Some(975), Some(timestamp - 70000), None),
+    Meta(None, "test-id-math", 1, Some("bitstamp"), Some(650), Some(timestamp - 80000), None),
+    Meta(None, "test-id-math", 0, Some("bitstamp"), Some(450), Some(timestamp - 90000), None),
+    Meta(None, "test-id-math", -1, Some("bitstamp"), Some(300), Some(timestamp - 100000), None),
+    Meta(None, "test-id-math", 0, Some("bitstamp"), Some(200), Some(timestamp - 110000), None),
+    Meta(None, "test-id-math", 1, Some("bitstamp"), Some(100), Some(timestamp - 120000), None)
   )
 
 }

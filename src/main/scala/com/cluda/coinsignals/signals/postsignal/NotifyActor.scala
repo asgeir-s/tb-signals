@@ -8,7 +8,7 @@ import com.amazonaws.services.sns.model.{PublishRequest, PublishResult}
 import com.cluda.coinsignals.signals.model.{Signal, SignalJsonProtocol}
 import com.typesafe.config.ConfigFactory
 
-class NotifyActor(snsTopicArn: String) extends Actor with ActorLogging {
+class NotifyActor extends Actor with ActorLogging {
 
   private val config = ConfigFactory.load()
 
@@ -19,19 +19,15 @@ class NotifyActor(snsTopicArn: String) extends Actor with ActorLogging {
 
 
   override def receive: Receive = {
-    case signals: Seq[Signal] =>
+    case (arn: String, signals: Seq[Signal]) =>
       import SignalJsonProtocol._
       import spray.json._
 
       //publish to an SNS topic
-      val publishRequest: PublishRequest = new PublishRequest(snsTopicArn, signals.map(_.toJson).toJson.prettyPrint)
+      val publishRequest: PublishRequest = new PublishRequest(arn, signals.map(_.toJson).toJson.prettyPrint)
       val publishResult: PublishResult = snsClient.publish(publishRequest)
 
       //print MessageId of message published to SNS topic
-      log.info("Received " + signals.length + "new signal(s). Publishing to SNS. MessageId: " + publishResult.getMessageId)
+      log.info("NotifyActor: Received " + signals.length + "new signal(s). Publishing to SNS. MessageId: " + publishResult.getMessageId)
   }
-}
-
-object NotifyActor {
-  def props(snsTopicArnc: String): Props = Props(new NotifyActor(snsTopicArnc))
 }

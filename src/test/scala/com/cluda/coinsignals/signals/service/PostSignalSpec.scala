@@ -7,7 +7,7 @@ import com.cluda.coinsignals.signals.model.{Signal, SignalJsonProtocol}
 
 class PostSignalSpec extends TestService {
 
-  val streamID = "postsignalspec"
+  val streamID = "btcaddress"
 
   override def beforeAll(): Unit = {
     DatabaseUtil.dropTableIfItExists(streamID, system.dispatcher)
@@ -21,7 +21,7 @@ class PostSignalSpec extends TestService {
       val signals = responseAs[String].parseJson.convertTo[List[Signal]]
 
       assert(signals.length == 1)
-      assert(signals.head.id isDefined)
+      assert(signals.head.id.isDefined)
       assert(signals.head.signal == 1)
       assert(signals.head.price > 0)
       assert(signals.head.timestamp > 11100000L)
@@ -36,12 +36,12 @@ class PostSignalSpec extends TestService {
       val signals = responseAs[String].parseJson.convertTo[List[Signal]]
 
       assert(signals.length == 2)
-      assert(signals(0).id isDefined)
+      assert(signals(0).id.isDefined)
       assert(signals(0).signal == -1)
       assert(signals(0).price > 0)
       assert(signals(0).timestamp > 11100000L)
 
-      assert(signals(1).id isDefined)
+      assert(signals(1).id.isDefined)
       assert(signals(1).signal == 0)
       assert(signals(1).price > 0)
       assert(signals(1).timestamp > 11100000L)
@@ -56,10 +56,10 @@ class PostSignalSpec extends TestService {
       val signals = responseAs[String].parseJson.convertTo[List[Signal]]
 
       assert(signals.length == 1)
-      assert(signals(0).id isDefined)
-      assert(signals(0).signal == 0)
-      assert(signals(0).price > 0)
-      assert(signals(0).timestamp > 11100000L)
+      assert(signals.head.id.isDefined)
+      assert(signals.head.signal == 0)
+      assert(signals.head.price > 0)
+      assert(signals.head.timestamp > 11100000L)
     }
   }
 

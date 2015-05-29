@@ -64,7 +64,7 @@ trait Service {
                 if (List(-1, 0, 1).contains(signal.toInt)) {
                   perRequestActor[Meta](
                     PostSignalActor.props(getExchangeActor),
-                    Meta(None, streamID, signal.toInt, None, None, None)
+                    Meta(None, streamID, signal.toInt, None, None, None, None)
                   )
                 }
                 else {

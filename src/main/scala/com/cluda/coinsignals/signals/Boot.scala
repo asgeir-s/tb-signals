@@ -19,12 +19,12 @@ object Boot extends App with Service {
 
   override val config = ConfigFactory.load()
   override val logger = Logging(system, getClass)
-  override val timeout = Timeout(2 minutes)
+  override val timeout = Timeout(2.minutes)
 
-  override val notificationActor = system.actorOf(NotifyActor.props(config.getString("aws.sns.arn")))
+  override val notificationActor = system.actorOf(Props[NotifyActor])
   override val databaseWriterActor = system.actorOf(Step3_WriteDatabaseActor.props(notificationActor))
   override val getPriceActor = system.actorOf(Step2_GetPriceTimeActor.props(databaseWriterActor))
-  override val getExchangeActor = system.actorOf(Step1_GetExchangeActor.props(getPriceActor))
+  override val getExchangeActor = system.actorOf(Step1_StreamInfoActor.props(getPriceActor))
   override val databaseReaderActor: ActorRef = system.actorOf(Props[DatabaseReaderActor])
 
   Http().bindAndHandle(routes, config.getString("http.interface"), config.getInt("http.port"))

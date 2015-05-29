@@ -1,6 +1,11 @@
 # Signals Microservice
 Microservice used in the coinsignals project.
 
+## Interface
+	POST: /streams/'streamID'/signals 	{'-1,0 or 1'}
+	GET:  /streams/'streamID'/signals? (optional URL-params: fromId, toId, afterTime, beforeTime and lastN (see combinations at the bottom of this page))
+	GET:  /streams/'streamID'/status
+
 ## OSX Set Up
 ##### Docker
 Local if when runing docker: localhost

@@ -22,7 +22,7 @@ class Step3_WriteDatabaseActor(notificationActor: ActorRef) extends Actor with A
 
   override def receive: Receive = {
     case meta: Meta =>
-      log.info("Step3_WriteDatabaseAndNotifyActor got meta: " + meta)
+      log.info("Step3_WriteDatabase got meta: " + meta)
       val signalsTable = TableQuery[SignalTable]((tag: Tag) => new SignalTable(tag, meta.streamID))
 
       val future = database.run(signalsTable.schema.create) // creates the table if it does not exist
@@ -36,7 +36,7 @@ class Step3_WriteDatabaseActor(notificationActor: ActorRef) extends Actor with A
                   database.run(signalsTable.sortBy(_.id.desc).take(1).result) map {
                     case theNewSignals: Seq[Signal] =>
                       meta.respondsActor.get ! theNewSignals
-                      notificationActor ! theNewSignals
+                      notificationActor ! (meta.awsARN.get, theNewSignals)
                   }
               }
             }
@@ -49,7 +49,7 @@ class Step3_WriteDatabaseActor(notificationActor: ActorRef) extends Actor with A
                       database.run(signalsTable.sortBy(_.id.desc).take(newSignals.length).result) map {
                         case theNewSignals: Seq[Signal] =>
                           meta.respondsActor.get ! theNewSignals
-                          notificationActor ! theNewSignals
+                          notificationActor ! (meta.awsARN.get, theNewSignals)
                       }
                   }
                 }
