@@ -1,7 +1,7 @@
 package com.cluda.coinsignals.signals.messaging.postsignal
 
 import akka.testkit.{TestActorRef, TestProbe}
-import com.cluda.coinsignals.signals.DatabaseUtil
+import com.cluda.coinsignals.signals.DatabaseUtilBlockingForTests
 import com.cluda.coinsignals.signals.messaging.MessagingTest
 import com.cluda.coinsignals.signals.model.{Meta, Signal}
 import com.cluda.coinsignals.signals.postsignal.Step3_WriteDatabaseActor
@@ -12,7 +12,7 @@ class Step3_WriteDatabaseActorTest extends MessagingTest {
   val testID = "step3writedatabaseandnotifyactortest"
 
   override def beforeAll(): Unit = {
-    DatabaseUtil.dropTableIfItExists(testID, context)
+    DatabaseUtilBlockingForTests.dropTableIfItExists(testID, context)
   }
 
   // mocks

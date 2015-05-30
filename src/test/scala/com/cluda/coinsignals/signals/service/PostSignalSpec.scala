@@ -1,7 +1,7 @@
 package com.cluda.coinsignals.signals.service
 
 import akka.http.scaladsl.model.StatusCodes._
-import com.cluda.coinsignals.signals.DatabaseUtil
+import com.cluda.coinsignals.signals.DatabaseUtilBlockingForTests
 import com.cluda.coinsignals.signals.model.{Signal, SignalJsonProtocol}
 
 
@@ -10,7 +10,7 @@ class PostSignalSpec extends TestService {
   val streamID = "btcaddress"
 
   override def beforeAll(): Unit = {
-    DatabaseUtil.dropTableIfItExists(streamID, system.dispatcher)
+    DatabaseUtilBlockingForTests.dropTableIfItExists(streamID, system.dispatcher)
   }
 
   it should "responds withe the written signal (with id, price, timestamp etc.)" in {

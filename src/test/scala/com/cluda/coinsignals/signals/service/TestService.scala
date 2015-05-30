@@ -3,6 +3,7 @@ package com.cluda.coinsignals.signals.service
 import akka.actor.{ActorRef, Props}
 import akka.event.Logging
 import akka.http.scaladsl.testkit.{RouteTestTimeout, ScalatestRouteTest}
+import akka.testkit.TestKit
 import akka.util.Timeout
 import com.cluda.coinsignals.signals.Service
 import com.cluda.coinsignals.signals.getsignal.DatabaseReaderActor
@@ -29,4 +30,16 @@ trait TestService extends FlatSpec with Matchers with ScalatestRouteTest with Se
   override val getPriceActor = system.actorOf(Step2_GetPriceTimeActor.props(databaseWriterActor))
   override val getExchangeActor = system.actorOf(Step1_StreamInfoActor.props(getPriceActor))
   override val databaseReaderActor: ActorRef = system.actorOf(Props[DatabaseReaderActor])
+
+  implicit val context = system.dispatcher
+
+  def afterTest(): Unit ={}
+
+  override protected def afterAll() {
+    afterTest()
+    TestKit.shutdownActorSystem(system)
+    super.afterAll()
+    system.shutdown()
+  }
+
 }

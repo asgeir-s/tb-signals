@@ -10,7 +10,7 @@ import slick.lifted.TableQuery
 import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext}
 
-object DatabaseUtil {
+object DatabaseUtilBlockingForTests {
 
   def dropTableIfItExists(tableName: String, executionContext: ExecutionContext): Unit = {
     val database: JdbcBackend.DatabaseDef = Database.forConfig("database", ConfigFactory.load())
@@ -31,12 +31,10 @@ object DatabaseUtil {
     implicit val ec = executionContext
 
     val signalsTable = TableQuery[SignalTable]((tag: Tag) => new SignalTable(tag, streamID))
-
-    database.run(signalsTable.schema.create)
-
+    Await.result(database.run(signalsTable.schema.create), 5.seconds)
     Await.result(database.run(
       signalsTable ++= TestData.signalSeq.reverse
-    ) map(x => println("database created")), 5 seconds)
+    ) map(x => println("database created")), 5.seconds)
   }
 
 }

@@ -2,16 +2,17 @@ package com.cluda.coinsignals.signals.service
 
 import akka.http.scaladsl.model.StatusCodes._
 import com.cluda.coinsignals.signals.model.{Signal, SignalJsonProtocol}
-import com.cluda.coinsignals.signals.{DatabaseUtil, TestData}
+import com.cluda.coinsignals.signals.{DatabaseUtilBlockingForTests, TestData}
 
 class GetSignalsSpec extends TestService {
 
   val streamID = "getsignalsspec"
 
   override def beforeAll(): Unit = {
-    DatabaseUtil.dropTableIfItExists("notexisting", system.dispatcher)
-    DatabaseUtil.dropTableIfItExists(streamID, system.dispatcher)
-    DatabaseUtil.createDummySignalsTable(streamID, system.dispatcher)
+    DatabaseUtilBlockingForTests.dropTableIfItExists("notexisting", system.dispatcher)
+    DatabaseUtilBlockingForTests.dropTableIfItExists(streamID, system.dispatcher)
+    DatabaseUtilBlockingForTests.createDummySignalsTable(streamID, system.dispatcher)
+    println("fini")
   }
 
   it should "responds withe all the signals for the given stream with the given ID" in {

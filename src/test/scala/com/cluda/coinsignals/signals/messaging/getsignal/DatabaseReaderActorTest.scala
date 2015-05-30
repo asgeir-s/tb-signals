@@ -2,7 +2,7 @@ package com.cluda.coinsignals.signals.messaging.getsignal
 
 import akka.actor.Props
 import akka.testkit.{TestActorRef, TestProbe}
-import com.cluda.coinsignals.signals.DatabaseUtil
+import com.cluda.coinsignals.signals.DatabaseUtilBlockingForTests
 import com.cluda.coinsignals.signals.getsignal.DatabaseReaderActor
 import com.cluda.coinsignals.signals.messaging.MessagingTest
 import com.cluda.coinsignals.signals.model.Signal
@@ -13,8 +13,8 @@ class DatabaseReaderActorTest extends MessagingTest {
 
   val testStream = "databasereaderactortest"
   override def beforeAll(): Unit = {
-    DatabaseUtil.dropTableIfItExists(testStream, context)
-    DatabaseUtil.createDummySignalsTable(testStream, context)
+    DatabaseUtilBlockingForTests.dropTableIfItExists(testStream, context)
+    DatabaseUtilBlockingForTests.createDummySignalsTable(testStream, context)
   }
 
   "when receiving 'GetSignals' with id of an existing stream and 'numberOfSignals' set to None it" should
