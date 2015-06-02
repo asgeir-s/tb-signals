@@ -21,8 +21,6 @@ import scala.concurrent.{Future, Promise}
  */
 class Step1_StreamInfoActor(getPriceActor: ActorRef) extends Actor with ActorLogging {
 
-  // TODO: this is just a dummy always returning "bitstamp". Should be implemented when the stats-info service is up and running
-
   implicit val executor = context.system.dispatcher
   implicit val system = context.system
   implicit val materializer = ActorFlowMaterializer()
@@ -45,7 +43,8 @@ class Step1_StreamInfoActor(getPriceActor: ActorRef) extends Actor with ActorLog
     doGet(streamInfoHost, "/streams/" + streamID + "?private=true").map { x =>
       Unmarshal(x.entity).to[String].map { string =>
         val exchange = string.parseJson.asJsObject.getFields("exchange").head.toString()
-        val arn = string.parseJson.asJsObject.fields.get("streamPrivate").get.asJsObject.getFields("topicArn").head.toString()
+        val arn = string.parseJson.asJsObject.fields.get("streamPrivate").get.asJsObject
+          .getFields("topicArn").head.toString()
         promise.success((exchange, arn))
       }
     }
@@ -62,7 +61,8 @@ class Step1_StreamInfoActor(getPriceActor: ActorRef) extends Actor with ActorLog
       }.recover {
         case _ =>
           log.error("cold not get the exchange and aws-sns-arn for the streamID: " + meta.streamID)
-          meta.respondsActor.get ! SignalProcessingException("cold not get the exchange and aws-sns-arn for the streamID: " + meta.streamID)
+          meta.respondsActor.get ! SignalProcessingException(
+            "cold not get the exchange and aws-sns-arn for the streamID: " + meta.streamID)
       }
   }
 }
