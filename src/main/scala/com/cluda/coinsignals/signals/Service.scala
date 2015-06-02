@@ -17,19 +17,21 @@ import com.typesafe.config.Config
 import scala.concurrent.{ExecutionContextExecutor, Future}
 
 trait Service {
-  implicit val system        : ActorSystem
-  implicit def executor      : ExecutionContextExecutor
-  implicit val materializer  : FlowMaterializer
-  implicit val timeout       : Timeout
+  implicit val system: ActorSystem
+
+  implicit def executor: ExecutionContextExecutor
+
+  implicit val materializer: FlowMaterializer
+  implicit val timeout: Timeout
 
   val config: Config
   val logger: LoggingAdapter
 
-  val getExchangeActor      : ActorRef
-  val databaseWriterActor   : ActorRef
-  val databaseReaderActor   : ActorRef
-  val getPriceActor         : ActorRef
-  val notificationActor     : ActorRef
+  val getExchangeActor: ActorRef
+  val databaseWriterActor: ActorRef
+  val databaseReaderActor: ActorRef
+  val getPriceActor: ActorRef
+  val notificationActor: ActorRef
 
   /**
    * Start a actor and pass it the decodedHttpRequest.
@@ -46,51 +48,50 @@ trait Service {
   }
 
   val routes = {
-    logRequestResult("signals") {
-      pathPrefix("streams" / Segment) { streamID =>
-        pathPrefix("signals") {
-          post {
-            entity(as[String]) { signal =>
+    pathPrefix("streams" / Segment) { streamID =>
+      pathPrefix("signals") {
+        post {
+          entity(as[String]) { signal =>
+            complete {
+              if (List(-1, 0, 1).contains(signal.toInt)) {
+                perRequestActor[Meta](
+                  PostSignalActor.props(getExchangeActor),
+                  Meta(None, streamID, signal.toInt, None, None, None, None)
+                )
+              }
+              else {
+                HttpResponse(BadRequest, entity = "BadRequest")
+              }
+            }
+          }
+        } ~
+          get {
+            parameters('fromId.as[Long].?, 'toId.as[Long].?, 'afterTime.as[Long].?, 'beforeTime.as[Long].?, 'lastN.as[Int].?).as(GetSignalsParams) { params =>
               complete {
-                if (List(-1, 0, 1).contains(signal.toInt)) {
-                  perRequestActor[Meta](
-                    PostSignalActor.props(getExchangeActor),
-                    Meta(None, streamID, signal.toInt, None, None, None, None)
+                if (params.isValid) {
+                  perRequestActor[GetSignals](
+                    GetSignalsActor.props(databaseReaderActor),
+                    GetSignals(streamID, params)
                   )
                 }
                 else {
-                  HttpResponse(BadRequest, entity = "BadRequest")
+                  HttpResponse(BadRequest, entity = "invalid combination of parameters")
                 }
               }
-            }
-          } ~
-            get {
-              parameters('fromId.as[Long].?, 'toId.as[Long].?, 'afterTime.as[Long].?, 'beforeTime.as[Long].?, 'lastN.as[Int].?).as(GetSignalsParams) { params =>
-                complete {
-                  if(params.isValid) {
-                    perRequestActor[GetSignals](
-                      GetSignalsActor.props(databaseReaderActor),
-                      GetSignals(streamID, params)
-                    )
-                  }
-                  else {
-                    HttpResponse(BadRequest, entity = "invalid combination of parameters")
-                  }
-                }
-              }
-            }
-        } ~
-          pathPrefix("status") {
-            complete {
-              perRequestActor[GetSignals](
-                GetSignalsActor.props(databaseReaderActor),
-                GetSignals(streamID, GetSignalsParams(lastN = Some(1)))
-              )
             }
           }
+      } ~
+        pathPrefix("status") {
+          complete {
+            perRequestActor[GetSignals](
+              GetSignalsActor.props(databaseReaderActor),
+              GetSignals(streamID, GetSignalsParams(lastN = Some(1)))
+            )
+          }
+        }
 
-      }
     }
-
   }
+
+
 }
