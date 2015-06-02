@@ -17,28 +17,19 @@ import com.typesafe.config.Config
 import scala.concurrent.{ExecutionContextExecutor, Future}
 
 trait Service {
-  implicit val system: ActorSystem
+  implicit val system        : ActorSystem
+  implicit def executor      : ExecutionContextExecutor
+  implicit val materializer  : FlowMaterializer
+  implicit val timeout       : Timeout
 
-  implicit def executor: ExecutionContextExecutor
-
-  implicit val materializer: FlowMaterializer
-
-  implicit val timeout: Timeout
-
-
-  def config: Config
-
+  val config: Config
   val logger: LoggingAdapter
 
-  val getExchangeActor: ActorRef
-
-  val databaseWriterActor: ActorRef
-
-  val databaseReaderActor: ActorRef
-
-  val getPriceActor: ActorRef
-
-  val notificationActor: ActorRef
+  val getExchangeActor      : ActorRef
+  val databaseWriterActor   : ActorRef
+  val databaseReaderActor   : ActorRef
+  val getPriceActor         : ActorRef
+  val notificationActor     : ActorRef
 
   /**
    * Start a actor and pass it the decodedHttpRequest.

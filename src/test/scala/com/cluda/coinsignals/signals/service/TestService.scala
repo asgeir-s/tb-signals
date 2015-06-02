@@ -17,13 +17,11 @@ import scala.concurrent.duration._
 trait TestService extends FlatSpec with Matchers with ScalatestRouteTest with Service {
   override def testConfigSource = "akka.loglevel = DEBUG"
 
-  override def config = ConfigFactory.load("application-test")
-
+  override val config = ConfigFactory.load("application-test")
   override val logger = Logging(system, getClass)
+  implicit val routeTestTimeout = RouteTestTimeout(20.second)
 
   override implicit val timeout: Timeout  = Timeout(2.minutes)
-
-  implicit val routeTestTimeout = RouteTestTimeout(20.second)
 
   override val notificationActor = system.actorOf(Props[NotifyActor])
   override val databaseWriterActor = system.actorOf(Step3_WriteDatabaseActor.props(notificationActor))

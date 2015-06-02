@@ -20,16 +20,16 @@ resolvers += "sonatype-oss-snapshot" at "https://oss.sonatype.org/content/reposi
 
 libraryDependencies ++= {
   val akkaV       = "2.3.11"
-  val akkaStreamV = "1.0-RC2"
+  val akkaStreamV = "1.0-RC3"
   val scalaTestV  = "2.2.4"
   val xchangeV = "3.0.1-SNAPSHOT"
   Seq(
     //"com.typesafe.akka"   %%    "akka-actor"                              %     akkaV,
     "com.typesafe.akka"     %%    "akka-stream-experimental"                %     akkaStreamV,
     "com.typesafe.akka"     %%    "akka-http-core-experimental"             %     akkaStreamV,
-    "com.typesafe.akka"     %%    "akka-http-scala-experimental"            %     akkaStreamV,
+    "com.typesafe.akka"     %%    "akka-http-experimental"                  %     akkaStreamV,
     "com.typesafe.akka"     %%    "akka-http-spray-json-experimental"       %     akkaStreamV,
-    "com.typesafe.akka"     %%    "akka-http-testkit-scala-experimental"    %     akkaStreamV,
+    "com.typesafe.akka"     %%    "akka-http-testkit-experimental"          %     akkaStreamV,
     "org.scalatest"         %%    "scalatest"                               %     scalaTestV      %     "test",
     ("com.xeiam.xchange"     %    "xchange-core"                            %     xchangeV).exclude("com.pusher", "pusher-java-client"),
     ("com.xeiam.xchange"     %    "xchange-bitfinex"                        %     xchangeV).exclude("com.pusher", "pusher-java-client"),
