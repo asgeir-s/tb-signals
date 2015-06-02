@@ -71,15 +71,12 @@ class PostSignalSpec extends TestService {
     }
   }
 
-  // TODO: Should be implemented when the stats-info service is up and running
-  /*
+
   it should "responds withe an error when the stream with the provieded ID does not exist in the 'Stream Info Service'" in {
-    Post("/streams/" + streamID + "/signals", """0""") ~> routes ~> check {
-      status shouldBe InternalServerError
-      val error = responseAs[String]
-      assert(error.contains("error"))
+    Post("/streams/" + "thisisnotreal" + "/signals", """0""") ~> routes ~> check {
+      status shouldBe NotFound
     }
   }
-  */
+
 
 }

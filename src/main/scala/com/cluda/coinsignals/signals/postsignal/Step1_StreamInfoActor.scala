@@ -3,7 +3,7 @@ package com.cluda.coinsignals.signals.postsignal
 import akka.actor._
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.HttpMethods._
-import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
+import akka.http.scaladsl.model.{StatusCodes, HttpRequest, HttpResponse}
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.ActorFlowMaterializer
 import akka.stream.scaladsl.{Sink, Source}
@@ -41,10 +41,15 @@ class Step1_StreamInfoActor(getPriceActor: ActorRef) extends Actor with ActorLog
     val promise = Promise[(String, String)]()
     val theFuture = promise.future
     doGet(streamInfoHost, "/streams/" + streamID + "?private=true").map { x =>
+      if (x.status == StatusCodes.NotFound) {
+        log.warning("Step1_StreamInfoActor: Got responds from stream-info that their is no stream with id: " + streamID)
+        promise.failure(new Exception("NO stream with that ID"))
+      }
       Unmarshal(x.entity).to[String].map { string =>
         val exchange = string.parseJson.asJsObject.getFields("exchange").head.toString()
         val arn = string.parseJson.asJsObject.fields.get("streamPrivate").get.asJsObject
           .getFields("topicArn").head.toString()
+        log.info("Step1_StreamInfoActor: Got responds from stream-info: that exchange: "+ exchange +", topicArn: " + arn)
         promise.success((exchange, arn))
       }
     }

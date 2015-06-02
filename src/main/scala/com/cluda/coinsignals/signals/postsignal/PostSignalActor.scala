@@ -31,7 +31,12 @@ class PostSignalActor(getExchangeActor: ActorRef) extends Actor with ActorLoggin
 
     case e: SignalProcessingException =>
       log.error("Got SignalProcessingException: " + e.reason)
-      respondTo ! HttpResponse(InternalServerError, entity = "error")
+      if(e.reason.contains("cold not get the exchange")) {
+        respondTo ! HttpResponse(NotFound, entity = "no stream with that ID")
+      }
+      else {
+        respondTo ! HttpResponse(InternalServerError, entity = "error")
+      }
       self ! PoisonPill
   }
 }
