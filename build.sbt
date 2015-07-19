@@ -36,7 +36,8 @@ libraryDependencies ++= {
     ("com.xeiam.xchange"     %    "xchange-bitstamp"                        %     xchangeV).exclude("com.pusher", "pusher-java-client"),
     "com.typesafe.slick"    %%    "slick"                                   %     "3.0.0",
     "org.postgresql"         %    "postgresql"                              %     "9.4-1201-jdbc41",
-    "com.amazonaws"          %    "aws-java-sdk-sns"                        %     "1.10.+"
+    "com.amazonaws"          %    "aws-java-sdk-sns"                        %     "1.10.+",
+    "commons-codec"          %    "commons-codec"                           %     "1.10"
 
   )
 }
