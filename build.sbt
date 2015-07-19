@@ -20,7 +20,7 @@ resolvers += "sonatype-oss-snapshot" at "https://oss.sonatype.org/content/reposi
 
 libraryDependencies ++= {
   val akkaV       = "2.3.11"
-  val akkaStreamV = "1.0-RC3"
+  val akkaStreamV = "1.0"
   val scalaTestV  = "2.2.4"
   val xchangeV = "3.0.1-SNAPSHOT"
   Seq(
@@ -36,7 +36,7 @@ libraryDependencies ++= {
     ("com.xeiam.xchange"     %    "xchange-bitstamp"                        %     xchangeV).exclude("com.pusher", "pusher-java-client"),
     "com.typesafe.slick"    %%    "slick"                                   %     "3.0.0",
     "org.postgresql"         %    "postgresql"                              %     "9.4-1201-jdbc41",
-    "com.amazonaws"          %    "aws-java-sdk-sns"                        %   "1.9.36"
+    "com.amazonaws"          %    "aws-java-sdk-sns"                        %     "1.10.+"
 
   )
 }

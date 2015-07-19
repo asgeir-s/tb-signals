@@ -3,7 +3,7 @@ package com.cluda.coinsignals.signals
 import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.event.Logging
 import akka.http.scaladsl.Http
-import akka.stream.ActorFlowMaterializer
+import akka.stream.ActorMaterializer
 import akka.util.Timeout
 import com.cluda.coinsignals.signals.getsignal.DatabaseReaderActor
 import com.cluda.coinsignals.signals.postsignal.{Step3_WriteDatabaseActor, _}
@@ -15,7 +15,7 @@ import scala.concurrent.duration._
 object Boot extends App with Service {
   override implicit val system = ActorSystem()
   override implicit def executor = system.dispatcher
-  override implicit val materializer = ActorFlowMaterializer()
+  override implicit val materializer = ActorMaterializer()
 
   override val config = ConfigFactory.load()
   override val logger = Logging(system, getClass)

@@ -5,7 +5,7 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.HttpMethods._
 import akka.http.scaladsl.model.{StatusCodes, HttpRequest, HttpResponse}
 import akka.http.scaladsl.unmarshalling.Unmarshal
-import akka.stream.ActorFlowMaterializer
+import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Sink, Source}
 import com.cluda.coinsignals.signals.model.Meta
 import com.cluda.coinsignals.signals.protocoll.SignalProcessingException
@@ -23,7 +23,7 @@ class Step1_StreamInfoActor(getPriceActor: ActorRef) extends Actor with ActorLog
 
   implicit val executor = context.system.dispatcher
   implicit val system = context.system
-  implicit val materializer = ActorFlowMaterializer()
+  implicit val materializer = ActorMaterializer()
   val config = ConfigFactory.load()
   val streamInfoHost = config.getString("microservices.stream-info")
 
@@ -46,6 +46,7 @@ class Step1_StreamInfoActor(getPriceActor: ActorRef) extends Actor with ActorLog
         promise.failure(new Exception("NO stream with that ID"))
       }
       Unmarshal(x.entity).to[String].map { string =>
+        println("STRING BACK: " + string)
         val exchange = string.parseJson.asJsObject.getFields("exchange").head.toString()
         val arn = string.parseJson.asJsObject.fields.get("streamPrivate").get.asJsObject
           .getFields("topicArn").head.toString()
