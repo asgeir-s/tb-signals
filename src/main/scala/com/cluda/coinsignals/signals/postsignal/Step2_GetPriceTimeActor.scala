@@ -64,6 +64,7 @@ class Step2_GetPriceTimeActor(writeDatabaseActor: ActorRef) extends Actor with A
         writeDatabaseActor ! MetaUtil.setPriceTime(meta, priceTime.get._1, priceTime.get._2)
       }
       else {
+        log.error("could not get price")
         meta.respondsActor.get ! SignalProcessingException("could not get price")
       }
   }

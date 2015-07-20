@@ -1,20 +1,19 @@
-package com.cluda.coinsignals.signals.util
-
+package com.cluda.coinsignals.protocol
 
 /**
  * Created by sogasg on 19/07/15.
  */
 
-import java.security.{AlgorithmParameters, SecureRandom}
+import java.security.AlgorithmParameters
 import java.security.spec.KeySpec
+import javax.crypto.spec.{IvParameterSpec, PBEKeySpec, SecretKeySpec}
+import javax.crypto.{Cipher, Mac, SecretKey, SecretKeyFactory}
 
 import com.typesafe.config.ConfigFactory
-import org.apache.commons.codec.binary.{Hex, Base64}
-import javax.crypto.spec.{IvParameterSpec, PBEKeySpec, SecretKeySpec}
-import javax.crypto.{SecretKeyFactory, SecretKey, Mac, Cipher}
+import org.apache.commons.codec.binary.{Base64, Hex}
 
 
-object Crypt {
+object CryptUtil {
 
   val cipherString = "AES/CBC/PKCS5Padding"
 
@@ -23,7 +22,7 @@ object Crypt {
    * @param bytes data to be encrypted
    * @return the encrypted text and a IV (both is needed to decrypt the message)
    */
-  def encrypt(bytes: Array[Byte], salt: Array[Byte], password: Array[Char]): (String, String) = {
+  private def encrypt(bytes: Array[Byte], salt: Array[Byte], password: Array[Char]): (String, String) = {
     val secretKey = getCryptKey(salt, password)
     val encipher = Cipher.getInstance(cipherString)
     encipher.init(Cipher.ENCRYPT_MODE, secretKey)
@@ -38,7 +37,7 @@ object Crypt {
    * @param iv the data's iv
    * @return the decrypted message
    */
-  def decrypt(bytes: Array[Byte], iv: String, salt: Array[Byte], password: Array[Char]): String = {
+  private def decrypt(bytes: Array[Byte], iv: String, salt: Array[Byte], password: Array[Char]): String = {
     val secretKey = getCryptKey(salt, password)
     val decipher = Cipher.getInstance(cipherString)
 
@@ -55,7 +54,7 @@ object Crypt {
     new SecretKeySpec(tmp.getEncoded(), "AES")
   }
 
-  def hmacEncode(data: String, secret: String) = {
+  private def hmacEncode(data: String, secret: String) = {
     val sha256_HMAC: Mac = Mac.getInstance("HmacSHA256")
     val secret_key: SecretKeySpec = new SecretKeySpec(secret.getBytes("UTF-8"), "HmacSHA256")
     sha256_HMAC.init(secret_key)
@@ -74,7 +73,7 @@ object Crypt {
 
     val hmac = hmacEncode(encMessage, hKey)
 
-    """{ "hash": """" + hmac + """", "iv": """" + encIv + """", "data": """" + encMessage + """"}"""
+    """{"hash":"""" + hmac + """","iv":"""" + encIv + """","data":"""" + encMessage + """"}"""
   }
 
   def receiveSecureMessage(message: String): Option[String] = {
@@ -84,7 +83,6 @@ object Crypt {
     val hKey = config.getString("crypt.hmac")
 
     import spray.json._
-    import DefaultJsonProtocol._
 
     val json = message.parseJson
 

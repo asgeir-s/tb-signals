@@ -1,16 +1,11 @@
-package com.cluda.coinsignals.signals.unit
+package com.cluda.coinsignals.protocol
 
-import java.util.UUID
-
-import com.cluda.coinsignals.signals.util.Crypt
-import com.typesafe.config.ConfigFactory
-
-import scala.util.Random
+import com.cluda.coinsignals.signals.unit.UnitTest
 
 /**
  * Created by sogasg on 19/07/15.
  */
-class CryptTest extends UnitTest {
+class CryptUtilTest extends UnitTest {
 
   // This tests dont run on CircleCI because JCE Unlimited Strength is not available there
   /*

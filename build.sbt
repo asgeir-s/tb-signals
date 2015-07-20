@@ -37,7 +37,8 @@ libraryDependencies ++= {
     "com.typesafe.slick"    %%    "slick"                                   %     "3.0.0",
     "org.postgresql"         %    "postgresql"                              %     "9.4-1201-jdbc41",
     "com.amazonaws"          %    "aws-java-sdk-sns"                        %     "1.10.+",
-    "commons-codec"          %    "commons-codec"                           %     "1.10"
+    "commons-codec"          %    "commons-codec"                           %     "1.10",
+    "org.bitbucket.b_c"      %    "jose4j"                                  %     "0.4.3"
 
   )
 }
