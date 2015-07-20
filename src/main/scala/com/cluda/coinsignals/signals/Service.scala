@@ -52,9 +52,9 @@ trait Service {
   }
 
   val routes = {
-    println(authHeaderName)
     headerValueByName(authHeaderName) { auth =>
-      if (authRequest(auth)) {
+      if (autenticated(auth)) {
+        println("autenticated!!")
         pathPrefix("streams" / Segment) { streamID =>
           pathPrefix("signals") {
             post {

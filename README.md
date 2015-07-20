@@ -1,6 +1,9 @@
 # Signals Microservice
 Microservice used in the coinsignals project.
 
+This requires Java Cryptography Extension (JCE) Unlimited Strength to run.
+Error: ava.security.InvalidKeyException: Illegal key size or default parameters means JCE is missing.
+
 ## Interface
 	POST: /streams/'streamID'/signals 	{'-1,0 or 1'}
 	GET:  /streams/'streamID'/signals? (optional URL-params: fromId, toId, afterTime, beforeTime and lastN (see combinations at the bottom of this page))

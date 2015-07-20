@@ -47,6 +47,7 @@ class Step1_StreamInfoActor(getPriceActor: ActorRef) extends Actor with ActorLog
         promise.failure(new Exception("NO stream with that ID"))
       }
       Unmarshal(x.entity).to[String].map { data =>
+        println("SOMETING GOOD!: " + data)
 
         val stringOpt = Sec.validateAndDecryptMessage(data)
         if(stringOpt.isDefined) {
@@ -61,6 +62,7 @@ class Step1_StreamInfoActor(getPriceActor: ActorRef) extends Actor with ActorLog
         }
 
         else {
+          log.error("The stream info was not valid, according to validateAndDecryptMessage")
           promise.failure(new Exception("The stream info was not valid, according to validateAndDecryptMessage"))
         }
       }
