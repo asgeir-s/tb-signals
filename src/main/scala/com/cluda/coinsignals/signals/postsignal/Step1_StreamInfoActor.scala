@@ -60,7 +60,6 @@ class Step1_StreamInfoActor(getPriceActor: ActorRef) extends Actor with ActorLog
           promise.success((exchange, arn))
 
         }
-
         else {
           log.error("The stream info was not valid, according to validateAndDecryptMessage")
           promise.failure(new Exception("The stream info was not valid, according to validateAndDecryptMessage"))
