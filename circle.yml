@@ -1,4 +1,6 @@
 machine:
+  java:
+    version: openjdk7
   python:
     version: 2.7.3
   services:
@@ -13,8 +15,6 @@ dependencies:
     - wget -q https://dl.bintray.com/sbt/debian/sbt-0.13.8.deb
     - sudo dpkg -i sbt-0.13.8.deb
     - pip install awscli
-    - "wget --no-check-certificate --no-cookies --header 'Cookie: oraclelicense=accept-securebackup-cookie' http://download.oracle.com/otn-pub/java/jce/8/jce_policy-8.zip"
-    - unzip jce_policy-8.zip
   cache_directories:
     - "~/.ivy2"
     - "~/.sbt"
