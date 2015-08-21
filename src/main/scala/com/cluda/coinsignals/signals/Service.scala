@@ -1,5 +1,7 @@
 package com.cluda.coinsignals.signals
 
+import java.util.UUID
+
 import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.event.LoggingAdapter
 import akka.http.scaladsl.model.HttpResponse
@@ -35,6 +37,7 @@ trait Service {
   val getPriceActor: ActorRef
   val notificationActor: ActorRef
   val authHeaderName: String = "x-groza-thow"
+  val runID = UUID.randomUUID()
 
 
   /**
@@ -52,9 +55,13 @@ trait Service {
   }
 
   val routes = {
+    pathPrefix("ping") {
+      complete {
+        HttpResponse(OK, entity = "runID: " + runID)
+      }
+    } ~
     headerValueByName(authHeaderName) { auth =>
       if (autenticated(auth)) {
-        println("autenticated!!")
         pathPrefix("streams" / Segment) { streamID =>
           pathPrefix("signals") {
             post {

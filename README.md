@@ -8,6 +8,18 @@ Error: ava.security.InvalidKeyException: Illegal key size or default parameters 
 	POST: /streams/'streamID'/signals 	{'-1,0 or 1'}
 	GET:  /streams/'streamID'/signals? (optional URL-params: fromId, toId, afterTime, beforeTime and lastN (see combinations at the bottom of this page))
 	GET:  /streams/'streamID'/status
+	
+## Environment Variables
+	STREAMS_SERVICE_ADDRESS
+	AWS_ACCESS_KEY_ID
+	AWS_SECRET_KEY
+	
+	optional(initialized for testing and automatically provided by AWS):
+	RDS_HOSTNAME
+	RDS_PORT
+	RDS_DB_NAME
+	RDS_USERNAME
+	RDS_PASSWORD
 
 ## OSX Set Up
 ##### Docker
