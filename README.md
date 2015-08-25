@@ -10,9 +10,10 @@ Error: ava.security.InvalidKeyException: Illegal key size or default parameters 
 	GET:  /streams/'streamID'/status
 	
 ## Environment Variables
-	STREAMS_SERVICE_ADDRESS
-	AWS_ACCESS_KEY_ID
-	AWS_SECRET_KEY
+	STREAMS_SERVICE_ADDRESS (default 'none')
+	AWS_ACCESS_KEY_ID (default 'none')
+	AWS_SECRET_KEY (default 'none')
+	LOG_LEVEL (default 'DEBUG')
 	
 	optional(initialized for testing and automatically provided by AWS):
 	RDS_HOSTNAME

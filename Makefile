@@ -14,13 +14,13 @@ build:
 	sbt assembly
 	docker build -t coinsignals/signals docker/
 
-deploy-s:
-	cd docker; eb use signals-staging; eb deploy;
+deploy-s: build
+	cd docker; eb deploy cs-signals-staging -r us-west-2;
 
 test-s-s:
 
-deploy-p:
-	cd docker; eb use signals; eb deploy;
+deploy-p: build
+	cd docker; eb deploy cs-signals -r us-east-1;
 
 setup-db:
 	psql -p 5432 -c "create database coinsignals;"
