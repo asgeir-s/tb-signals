@@ -12,6 +12,7 @@ import com.cluda.coinsignals.signals.protocoll.{GetSignalsParams, DatabaseReadEx
 class DatabaseReaderActorTest extends MessagingTest {
 
   val testStream = "databasereaderactortest"
+
   override def beforeAll(): Unit = {
     DatabaseUtilBlockingForTests.dropTableIfItExists(testStream, context)
     DatabaseUtilBlockingForTests.createDummySignalsTable(testStream, context)

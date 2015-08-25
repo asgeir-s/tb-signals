@@ -13,8 +13,6 @@ import com.typesafe.config.ConfigFactory
 
 class NotifyActorTest extends MessagingTest {
 
-  val config = ConfigFactory.load("application-test")
-
   val credentials = new BasicAWSCredentials(config.getString("aws.accessKeyId"), config.getString("aws.secretAccessKey"))
 
   //create a new SNS client and set endpoint

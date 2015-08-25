@@ -3,6 +3,7 @@ package com.cluda.coinsignals.signals.messaging
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestKit}
 import akka.util.Timeout
+import com.typesafe.config.ConfigFactory
 import org.scalatest._
 
 import scala.concurrent.duration._
@@ -13,6 +14,8 @@ import scala.language.postfixOps
  */
 abstract class MessagingTest extends TestKit(ActorSystem("test")) with FlatSpecLike with ImplicitSender with Matchers with
 OptionValues with Inside with Inspectors with BeforeAndAfterAll {
+
+  val config = ConfigFactory.load("application-test")
 
   implicit val timeout = Timeout(10 second)
   implicit val context = system.dispatcher
