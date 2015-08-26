@@ -26,10 +26,12 @@ class Step1_StreamInfoActor(getPriceActor: ActorRef) extends Actor with ActorLog
   implicit val system = context.system
   implicit val materializer = ActorMaterializer()
   val config = ConfigFactory.load()
-  val streamInfoHost = config.getString("microservices.stream-info")
+  val streamInfoHost = config.getString("microservices.streams")
+  val streamInfoPort = config.getInt("microservices.streamsPort")
 
 
-  def doGet(host: String, path: String, port: Int = 80): Future[HttpResponse] = {
+
+  def doGet(host: String, path: String, port: Int = streamInfoPort): Future[HttpResponse] = {
     val conn = Http().outgoingConnection(host, port)
     val request = Sec.secureHttpRequest(GET, uri = path)
     Source.single(request).via(conn).runWith(Sink.head[HttpResponse])

@@ -11,6 +11,7 @@ Error: ava.security.InvalidKeyException: Illegal key size or default parameters 
 	
 ## Environment Variables
 	STREAMS_SERVICE_ADDRESS (default 'none')
+	STREAMS_SERVICE_PORT (default '80')
 	AWS_ACCESS_KEY_ID (default 'none')
 	AWS_SECRET_KEY (default 'none')
 	LOG_LEVEL (default 'DEBUG')

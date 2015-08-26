@@ -8,7 +8,7 @@ import com.cluda.coinsignals.signals.model.{Signal, SignalJsonProtocol}
 
 class PostSignalSpec extends TestService {
 
-  val streamID = config.getString("signalStream.id")
+  val streamID = config.getString("testSignalStream.id")
 
   override def beforeAll(): Unit = {
     DatabaseUtilBlockingForTests.dropTableIfItExists(streamID, system.dispatcher)
