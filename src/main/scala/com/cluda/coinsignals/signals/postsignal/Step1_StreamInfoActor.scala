@@ -7,7 +7,6 @@ import akka.http.scaladsl.model.{StatusCodes, HttpRequest, HttpResponse}
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Sink, Source}
-import com.cluda.coinsignals.protocol.Sec
 import com.cluda.coinsignals.signals.model.Meta
 import com.cluda.coinsignals.signals.protocoll.SignalProcessingException
 import com.cluda.coinsignals.signals.util.MetaUtil
@@ -33,7 +32,7 @@ class Step1_StreamInfoActor(getPriceActor: ActorRef) extends Actor with ActorLog
 
   def doGet(host: String, path: String, port: Int = streamInfoPort): Future[HttpResponse] = {
     val conn = Http().outgoingConnection(host, port)
-    val request = Sec.secureHttpRequest(GET, uri = path)
+    val request = HttpRequest(GET, uri = path)
     Source.single(request).via(conn).runWith(Sink.head[HttpResponse])
   }
 
@@ -48,25 +47,14 @@ class Step1_StreamInfoActor(getPriceActor: ActorRef) extends Actor with ActorLog
         log.warning("Step1_StreamInfoActor: Got responds from stream-info that their is no stream with id: " + streamID)
         promise.failure(new Exception("NO stream with that ID"))
       }
-      Unmarshal(x.entity).to[String].map { data =>
-        println("SOMETING GOOD!: " + data)
-
-        val stringOpt = Sec.validateAndDecryptMessage(data)
-        if(stringOpt.isDefined) {
-          val string = stringOpt.get
+      Unmarshal(x.entity).to[String].map { string =>
           println("STRING BACK: " + string)
           val exchange = string.parseJson.asJsObject.getFields("exchange").head.toString()
           val arn = string.parseJson.asJsObject.fields.get("streamPrivate").get.asJsObject
             .getFields("topicArn").head.toString()
           log.info("Step1_StreamInfoActor: Got responds from stream-info: that exchange: " + exchange + ", topicArn: " + arn)
           promise.success((exchange, arn))
-
         }
-        else {
-          log.error("The stream info was not valid, according to validateAndDecryptMessage")
-          promise.failure(new Exception("The stream info was not valid, according to validateAndDecryptMessage"))
-        }
-      }
     }
     theFuture
   }

@@ -5,7 +5,6 @@ import com.amazonaws.auth.BasicAWSCredentials
 import com.amazonaws.regions.{Region, Regions}
 import com.amazonaws.services.sns.AmazonSNSClient
 import com.amazonaws.services.sns.model.{PublishRequest, PublishResult}
-import com.cluda.coinsignals.protocol.Sec
 import com.cluda.coinsignals.signals.model.{Signal, SignalJsonProtocol}
 import com.typesafe.config.ConfigFactory
 
@@ -25,7 +24,7 @@ class NotifyActor extends Actor with ActorLogging {
       import spray.json._
 
       //publish to an SNS topic
-      val publishRequest: PublishRequest = new PublishRequest(arn, Sec.secureMessage(signals.map(_.toJson).toJson.prettyPrint))
+      val publishRequest: PublishRequest = new PublishRequest(arn, signals.map(_.toJson).toJson.prettyPrint)
       val publishResult: PublishResult = snsClient.publish(publishRequest)
 
       //print MessageId of message published to SNS topic

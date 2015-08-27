@@ -1,12 +1,11 @@
 package com.cluda.coinsignals.signals.postsignal
 
 import akka.actor._
+import akka.http.scaladsl.model.HttpResponse
 import akka.http.scaladsl.model.StatusCodes._
-import com.cluda.coinsignals.protocol.Sec
 import com.cluda.coinsignals.signals.model.{Meta, Signal, SignalJsonProtocol}
 import com.cluda.coinsignals.signals.protocoll.SignalProcessingException
 import com.cluda.coinsignals.signals.util.MetaUtil
-import Sec._
 
 
 class PostSignalActor(getExchangeActor: ActorRef) extends Actor with ActorLogging {
@@ -24,21 +23,21 @@ class PostSignalActor(getExchangeActor: ActorRef) extends Actor with ActorLoggin
       log.info("PostSignalActor: Got signal(s) back: " + signals)
       import SignalJsonProtocol._
       import spray.json._
-      respondTo ! secureHttpResponse(OK, entity = signals.map(_.toJson).toJson.prettyPrint)
+      respondTo ! HttpResponse(OK, entity = signals.map(_.toJson).toJson.prettyPrint)
       self ! PoisonPill
 
     case e: SignalProcessingException if e.reason.contains("Conflict") =>
       log.error("Got SignalProcessingException: " + e.reason)
-      respondTo ! secureHttpResponse(Conflict, entity = "duplicate")
+      respondTo ! HttpResponse(Conflict, entity = "duplicate")
       self ! PoisonPill
 
     case e: SignalProcessingException =>
       log.error("Got SignalProcessingException: " + e.reason)
       if(e.reason.contains("cold not get the exchange")) {
-        respondTo ! secureHttpResponse(NotFound, entity = "no stream with that ID")
+        respondTo ! HttpResponse(NotFound, entity = "no stream with that ID")
       }
       else {
-        respondTo ! secureHttpResponse(InternalServerError, entity = "error")
+        respondTo ! HttpResponse(InternalServerError, entity = "error")
       }
       self ! PoisonPill
   }

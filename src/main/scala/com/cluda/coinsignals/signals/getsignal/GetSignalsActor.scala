@@ -5,7 +5,6 @@ import akka.http.scaladsl.model.HttpResponse
 import akka.http.scaladsl.model.StatusCodes._
 import com.cluda.coinsignals.signals.model.{Signal, SignalJsonProtocol}
 import com.cluda.coinsignals.signals.protocoll.{InalidCombinationOfParametersException, DatabaseReadException, GetSignals}
-import com.cluda.coinsignals.protocol.Sec._
 
 class GetSignalsActor(databaseReaderActor: ActorRef) extends Actor with ActorLogging {
   override def receive: Receive = {
@@ -20,16 +19,16 @@ class GetSignalsActor(databaseReaderActor: ActorRef) extends Actor with ActorLog
       log.info("GetSignalsActor: Got signal(s) back: " + signals)
       import SignalJsonProtocol._
       import spray.json._
-      respondTo ! secureHttpResponse(OK, entity = signals.map(_.toJson).toJson.prettyPrint)
+      respondTo ! HttpResponse(OK, entity = signals.map(_.toJson).toJson.prettyPrint)
       self ! PoisonPill
 
     case e: DatabaseReadException =>
       log.error("GetSignalsActor returns 'no stream with that id'. Reason: " + e.reason)
-      respondTo ! secureHttpResponse(NoContent)
+      respondTo ! HttpResponse(NoContent)
 
     case e: InalidCombinationOfParametersException =>
       log.error(e.info)
-      respondTo ! secureHttpResponse(BadRequest, entity = "invalid combination of parameters")
+      respondTo ! HttpResponse(BadRequest, entity = "invalid combination of parameters")
   }
 }
 

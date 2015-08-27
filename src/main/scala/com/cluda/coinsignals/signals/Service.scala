@@ -10,8 +10,6 @@ import akka.http.scaladsl.server.Directives._
 import akka.pattern.ask
 import akka.stream.Materializer
 import akka.util.Timeout
-import com.cluda.coinsignals.protocol.Sec
-import com.cluda.coinsignals.protocol.Sec._
 import com.cluda.coinsignals.signals.getsignal.GetSignalsActor
 import com.cluda.coinsignals.signals.model.Meta
 import com.cluda.coinsignals.signals.postsignal.PostSignalActor
@@ -36,7 +34,6 @@ trait Service {
   val databaseReaderActor: ActorRef
   val getPriceActor: ActorRef
   val notificationActor: ActorRef
-  val authHeaderName: String = "x-groza-thow"
   val runID = UUID.randomUUID()
 
 
@@ -50,7 +47,7 @@ trait Service {
    */
   def perRequestActor[T](props: Props, message: T): Future[HttpResponse] = {
     (system.actorOf(props) ? message)
-      .recover { case _ => Sec.secureHttpResponse(BadRequest, entity = "BadRequest") }
+      .recover { case _ => HttpResponse(BadRequest, entity = "BadRequest") }
       .asInstanceOf[Future[HttpResponse]]
   }
 
@@ -60,15 +57,10 @@ trait Service {
         HttpResponse(OK, entity = "runID: " + runID)
       }
     } ~
-    headerValueByName(authHeaderName) { auth =>
-      if (autenticated(auth)) {
         pathPrefix("streams" / Segment) { streamID =>
           pathPrefix("signals") {
             post {
-              entity(as[String]) { message =>
-                val signalOpt = Sec.validateAndDecryptMessage(message)
-                if (signalOpt.isDefined) {
-                  val signal = signalOpt.get
+              entity(as[String]) { signal =>
                   complete {
                     if (List(-1, 0, 1).contains(signal.toInt)) {
                       perRequestActor[Meta](
@@ -77,13 +69,9 @@ trait Service {
                       )
                     }
                     else {
-                      Sec.secureHttpResponse(BadRequest, entity = "BadRequest")
+                      HttpResponse(BadRequest, entity = "BadRequest")
                     }
                   }
-                }
-                else {
-                  reject
-                }
               }
             } ~
               get {
@@ -96,7 +84,7 @@ trait Service {
                       )
                     }
                     else {
-                      Sec.secureHttpResponse(BadRequest, entity = "invalid combination of parameters")
+                      HttpResponse(BadRequest, entity = "invalid combination of parameters")
                     }
                   }
                 }
@@ -112,11 +100,7 @@ trait Service {
             }
 
         }
-      }
-      else {
-        reject
-      }
-    }
+
   }
 
 
