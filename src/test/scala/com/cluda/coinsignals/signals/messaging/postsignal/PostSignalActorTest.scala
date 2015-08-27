@@ -4,7 +4,6 @@ import akka.actor.Props
 import akka.http.scaladsl.model.HttpResponse
 import akka.http.scaladsl.model.StatusCodes._
 import akka.testkit.{TestActorRef, TestProbe}
-import com.cluda.coinsignals.protocol.Sec
 import com.cluda.coinsignals.signals.TestData
 import com.cluda.coinsignals.signals.messaging.MessagingTest
 import com.cluda.coinsignals.signals.model.{Meta, SignalJsonProtocol}
