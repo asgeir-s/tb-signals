@@ -8,7 +8,7 @@ import com.amazonaws.services.sns.AmazonSNSClient
 import com.amazonaws.services.sns.model.{CreateTopicRequest, CreateTopicResult, DeleteTopicRequest}
 import com.cluda.coinsignals.signals.TestData
 import com.cluda.coinsignals.signals.messaging.MessagingTest
-import com.cluda.coinsignals.signals.postsignal.NotifyActor
+import com.cluda.coinsignals.signals.postsignal.{HttpNotification, NotifyActor}
 import com.sun.org.glassfish.external.probe.provider.annotations.Probe
 import com.typesafe.config.ConfigFactory
 
@@ -40,9 +40,17 @@ class NotifyActorTest extends MessagingTest {
   }
 
   "when receiving a signal it" should
-    "should send a notification to the SNS topic with the signal" in {
+    "should send a notification to the SNS topic and send HTTP-notifications with the signal" in {
+    val streamID = "test-stream-id"
     val actor = TestActorRef(NotifyActor.props(httpNotifierProbe.ref), "notifyActor1")
-    actor ! Seq(TestData.signal1)
+    actor ! (streamID, topicArn, Seq(TestData.signal1))
+    val messageToHttpNotifier1 = httpNotifierProbe.expectMsgType[HttpNotification]
+    val messageToHttpNotifier2 = httpNotifierProbe.expectMsgType[HttpNotification]
+    println(messageToHttpNotifier1.uri + " - " + "test1.com" + streamID +"signal")
+    //assert(messageToHttpNotifier1.uri == "test1.com/" + streamID +"/signal")
+    //assert(messageToHttpNotifier2.uri == "test2.com/" + streamID +"/signal")
+    assert(messageToHttpNotifier1.content.contains("234.453"))
+
   }
 
   "when receiving multiple signals it" should

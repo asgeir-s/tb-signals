@@ -33,9 +33,10 @@ class NotifyActor(httpNotifierActor: ActorRef) extends Actor with ActorLogging {
       //print MessageId of message published to SNS topic
       log.info("NotifyActor: Published signals to SNS. MessageId: " + publishResult.getMessageId)
 
-      import collection.JavaConversions._
-      val rawHttpSubscribers: List[String] = config.getStringList("httpSignalSubscribers").toList
-      val httpSubscribers = rawHttpSubscribers.map(_.replace("'streamID'", streamID))
+      val rawHttpSubscribers = config.getString("httpSignalSubscribers")
+      val subscriberList = rawHttpSubscribers.replace("\"", "").replace(" ", "").split(',')
+      val httpSubscribers = subscriberList.map(_.replace("'streamID'", streamID))
+
       httpSubscribers.map(httpNotifierActor ! HttpNotification(_, signalsString))
       log.info("NotifyActor: Sent HTTP-notifications to: " + httpSubscribers)
 
