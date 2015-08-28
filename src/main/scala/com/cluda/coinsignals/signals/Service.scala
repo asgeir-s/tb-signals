@@ -34,6 +34,8 @@ trait Service {
   val databaseReaderActor: ActorRef
   val getPriceActor: ActorRef
   val notificationActor: ActorRef
+  val httpNotifyActor: ActorRef
+
   val runID = UUID.randomUUID()
 
 

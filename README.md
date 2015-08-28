@@ -15,6 +15,7 @@ Error: ava.security.InvalidKeyException: Illegal key size or default parameters 
 	AWS_ACCESS_KEY_ID (default 'none')
 	AWS_SECRET_KEY (default 'none')
 	LOG_LEVEL (default 'DEBUG')
+	HTTP_SIGNAL_SUBSCRIBERS (default '[]') (should be streams, trader, email notifier, etc.)
 	
 	optional(initialized for testing and automatically provided by AWS):
 	RDS_HOSTNAME

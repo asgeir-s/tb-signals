@@ -36,7 +36,7 @@ class Step3_WriteDatabaseActor(notificationActor: ActorRef) extends Actor with A
                   database.run(signalsTable.sortBy(_.id.desc).take(1).result) map {
                     case theNewSignals: Seq[Signal] =>
                       meta.respondsActor.get ! theNewSignals
-                      notificationActor ! (meta.awsARN.get, theNewSignals)
+                      notificationActor ! (meta.streamID, meta.awsARN.get, meta.streamID, theNewSignals)
                   }
               }
             }
@@ -49,7 +49,7 @@ class Step3_WriteDatabaseActor(notificationActor: ActorRef) extends Actor with A
                       database.run(signalsTable.sortBy(_.id.desc).take(newSignals.length).result) map {
                         case theNewSignals: Seq[Signal] =>
                           meta.respondsActor.get ! theNewSignals
-                          notificationActor ! (meta.awsARN.get, theNewSignals)
+                          notificationActor ! (meta.streamID, meta.awsARN.get, theNewSignals)
                       }
                   }
                 }
