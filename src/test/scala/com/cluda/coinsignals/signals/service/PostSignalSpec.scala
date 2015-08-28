@@ -12,6 +12,12 @@ class PostSignalSpec extends TestService {
     DatabaseUtilBlockingForTests.dropTableIfItExists(streamID, system.dispatcher)
   }
 
+  it should "prohibit duplicate" in {
+    Post("/streams/" + streamID + "/signals", "0") ~> routes ~> check {
+      val signals = responseAs[String]
+    }
+  }
+
   it should "responds withe the written signal (with id, price, timestamp etc.)" in {
     Post("/streams/" + streamID + "/signals", "1") ~> routes ~> check {
       status shouldBe OK
