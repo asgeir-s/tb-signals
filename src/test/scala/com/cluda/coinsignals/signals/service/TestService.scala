@@ -7,7 +7,7 @@ import akka.testkit.TestKit
 import akka.util.Timeout
 import com.cluda.coinsignals.signals.Service
 import com.cluda.coinsignals.signals.getsignal.DatabaseReaderActor
-import com.cluda.coinsignals.signals.postsignal.{Step1_StreamInfoActor, NotifyActor, Step2_GetPriceTimeActor, Step3_WriteDatabaseActor}
+import com.cluda.coinsignals.signals.postsignal._
 import com.typesafe.config.ConfigFactory
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -23,11 +23,15 @@ trait TestService extends FlatSpec with Matchers with ScalatestRouteTest with Se
 
   override implicit val timeout: Timeout  = Timeout(2.minutes)
 
-  override val notificationActor = system.actorOf(Props[NotifyActor])
+  override val httpNotifyActor = system.actorOf(Props[HttpNotifierActor])
+
+  override val notificationActor = system.actorOf(NotifyActor.props(httpNotifyActor))
   override val databaseWriterActor = system.actorOf(Step3_WriteDatabaseActor.props(notificationActor))
   override val getPriceActor = system.actorOf(Step2_GetPriceTimeActor.props(databaseWriterActor))
   override val getExchangeActor = system.actorOf(Step1_StreamInfoActor.props(getPriceActor))
   override val databaseReaderActor: ActorRef = system.actorOf(Props[DatabaseReaderActor])
+
+
 
   implicit val context = system.dispatcher
 

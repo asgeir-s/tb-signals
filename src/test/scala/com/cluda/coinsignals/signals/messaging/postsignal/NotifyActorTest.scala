@@ -1,7 +1,7 @@
 package com.cluda.coinsignals.signals.messaging.postsignal
 
 import akka.actor.Props
-import akka.testkit.TestActorRef
+import akka.testkit.{TestProbe, TestActorRef}
 import com.amazonaws.auth.BasicAWSCredentials
 import com.amazonaws.regions.{Region, Regions}
 import com.amazonaws.services.sns.AmazonSNSClient
@@ -9,10 +9,12 @@ import com.amazonaws.services.sns.model.{CreateTopicRequest, CreateTopicResult, 
 import com.cluda.coinsignals.signals.TestData
 import com.cluda.coinsignals.signals.messaging.MessagingTest
 import com.cluda.coinsignals.signals.postsignal.NotifyActor
+import com.sun.org.glassfish.external.probe.provider.annotations.Probe
 import com.typesafe.config.ConfigFactory
 
 class NotifyActorTest extends MessagingTest {
 
+  val httpNotifierProbe = TestProbe()
   val credentials = new BasicAWSCredentials(config.getString("aws.accessKeyId"), config.getString("aws.secretAccessKey"))
 
   //create a new SNS client and set endpoint
@@ -39,13 +41,13 @@ class NotifyActorTest extends MessagingTest {
 
   "when receiving a signal it" should
     "should send a notification to the SNS topic with the signal" in {
-    val actor = TestActorRef(Props[NotifyActor], "notifyActor1")
+    val actor = TestActorRef(NotifyActor.props(httpNotifierProbe.ref), "notifyActor1")
     actor ! Seq(TestData.signal1)
   }
 
   "when receiving multiple signals it" should
     "should send a notification to the SNS topic with the signals" in {
-    val actor = TestActorRef(Props[NotifyActor], "notifyActor2")
+    val actor = TestActorRef(NotifyActor.props(httpNotifierProbe.ref), "notifyActor2")
     actor ! Seq(TestData.signalSeq(11), TestData.signalSeq(12))
   }
 

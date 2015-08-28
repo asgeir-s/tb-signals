@@ -41,3 +41,7 @@ class NotifyActor(httpNotifierActor: ActorRef) extends Actor with ActorLogging {
 
   }
 }
+
+object NotifyActor {
+  def props(httpNotifierActor: ActorRef): Props = Props(new NotifyActor(httpNotifierActor))
+}

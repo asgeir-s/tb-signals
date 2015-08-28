@@ -1,5 +1,6 @@
 package com.cluda.coinsignals.signals.service
 
+import akka.actor.ActorRef
 import akka.http.scaladsl.model.StatusCodes._
 import com.cluda.coinsignals.signals.model.{Signal, SignalJsonProtocol}
 import com.cluda.coinsignals.signals.{DatabaseUtilBlockingForTests, TestData}
@@ -263,5 +264,4 @@ class GetSignalsSpec extends TestService {
       assert(responds.contains("invalid combination of parameters"))
     }
   }
-
 }

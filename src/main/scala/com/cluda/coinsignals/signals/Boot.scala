@@ -21,7 +21,8 @@ object Boot extends App with Service {
   override val logger = Logging(system, getClass)
   override val timeout = Timeout(2.minutes)
 
-  override val notificationActor = system.actorOf(Props[NotifyActor])
+  override val httpNotifyActor = system.actorOf(Props[HttpNotifierActor])
+  override val notificationActor = system.actorOf(NotifyActor.props(httpNotifyActor))
   override val databaseWriterActor = system.actorOf(Step3_WriteDatabaseActor.props(notificationActor))
   override val getPriceActor = system.actorOf(Step2_GetPriceTimeActor.props(databaseWriterActor))
   override val getExchangeActor = system.actorOf(Step1_StreamInfoActor.props(getPriceActor))
