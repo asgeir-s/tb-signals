@@ -13,7 +13,6 @@ class GetSignalsSpec extends TestService {
     DatabaseUtilBlockingForTests.dropTableIfItExists("notexisting", system.dispatcher)
     DatabaseUtilBlockingForTests.dropTableIfItExists(streamID, system.dispatcher)
     DatabaseUtilBlockingForTests.createDummySignalsTable(streamID, system.dispatcher)
-    println("fini")
   }
 
   it should "responds withe all the signals for the given stream with the given ID" in {
@@ -65,7 +64,6 @@ class GetSignalsSpec extends TestService {
   }
 
   it should "be possible to get all signals after a specified timestamp" in {
-    println("get signals befor: " + (TestData.timestamp - 40000))
     Get("/streams/" + streamID + "/signals?beforeTime=" + (TestData.timestamp - 40000)) ~> routes ~> check {
       status shouldBe OK
       import SignalJsonProtocol._

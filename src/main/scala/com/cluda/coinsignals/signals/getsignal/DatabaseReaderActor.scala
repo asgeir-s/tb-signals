@@ -49,11 +49,11 @@ class DatabaseReaderActor extends Actor with ActorLogging {
           }
           else if (paramseters.afterTime isDefined) {
             if (paramseters.beforeTime isDefined) {
-              println("afterTime:" + paramseters.afterTime.get + " && beforeTime:" + paramseters.beforeTime.get)
+              //println("afterTime:" + paramseters.afterTime.get + " && beforeTime:" + paramseters.beforeTime.get)
               signalsTable.filter(x => x.timestamp > paramseters.afterTime.get && x.timestamp < paramseters.beforeTime.get).sortBy(_.id.desc)
             }
             else {
-              println("afterTime:" + paramseters.afterTime.get)
+              //println("afterTime:" + paramseters.afterTime.get)
               signalsTable.filter(_.timestamp > paramseters.afterTime.get).sortBy(_.id.desc)
             }
           }
@@ -63,7 +63,7 @@ class DatabaseReaderActor extends Actor with ActorLogging {
           }
 
           else if (paramseters.beforeTime isDefined) {
-            println("toTime:" + paramseters.beforeTime.get)
+            //println("toTime:" + paramseters.beforeTime.get)
             signalsTable.filter(_.timestamp < paramseters.beforeTime.get).sortBy(_.id.desc)
           }
           else {

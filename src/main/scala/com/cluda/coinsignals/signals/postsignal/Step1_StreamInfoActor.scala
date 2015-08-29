@@ -48,7 +48,6 @@ class Step1_StreamInfoActor(getPriceActor: ActorRef) extends Actor with ActorLog
         promise.failure(new Exception("NO stream with that ID"))
       }
       Unmarshal(x.entity).to[String].map { string =>
-          println("STRING BACK: " + string)
           val exchange = string.parseJson.asJsObject.getFields("exchange").head.toString()
           val arn = string.parseJson.asJsObject.fields.get("streamPrivate").get.asJsObject
             .getFields("topicArn").head.toString()

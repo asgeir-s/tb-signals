@@ -34,7 +34,7 @@ object DatabaseUtilBlockingForTests {
     Await.result(database.run(signalsTable.schema.create), 5.seconds)
     Await.result(database.run(
       signalsTable ++= TestData.signalSeq.reverse
-    ) map(x => println("database created")), 5.seconds)
+    ) map(x => println("DatabaseUtilBlockingForTests: database created")), 5.seconds)
   }
 
 }

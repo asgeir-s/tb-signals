@@ -26,9 +26,9 @@ class NotifyActorTest extends MessagingTest {
   val createTopicResult: CreateTopicResult = snsClient.createTopic(createTopicRequest)
   val topicArn = createTopicResult.getTopicArn
   //print TopicArn
-  System.out.println(createTopicResult)
+  //println(createTopicResult)
   //get request id for CreateTopicRequest from SNS metadata
-  System.out.println("CreateTopicRequest - " + snsClient.getCachedResponseMetadata(createTopicRequest))
+  //println("CreateTopicRequest - " + snsClient.getCachedResponseMetadata(createTopicRequest))
 
 
   override def afterTest(): Unit = {
@@ -36,7 +36,7 @@ class NotifyActorTest extends MessagingTest {
     val deleteTopicRequest: DeleteTopicRequest = new DeleteTopicRequest(topicArn)
     snsClient.deleteTopic(deleteTopicRequest)
     //get request id for DeleteTopicRequest from SNS metadata
-    System.out.println("DeleteTopicRequest - " + snsClient.getCachedResponseMetadata(deleteTopicRequest))
+    //println("DeleteTopicRequest - " + snsClient.getCachedResponseMetadata(deleteTopicRequest))
   }
 
   "when receiving a signal it" should
@@ -45,11 +45,10 @@ class NotifyActorTest extends MessagingTest {
     val actor = TestActorRef(NotifyActor.props(httpNotifierProbe.ref), "notifyActor1")
     actor ! (streamID, topicArn, Seq(TestData.signal1))
     val messageToHttpNotifier1 = httpNotifierProbe.expectMsgType[(HttpNotification, Int)]
-    val messageToHttpNotifier2 = httpNotifierProbe.expectMsgType[(HttpNotification, Int)]
-    println(messageToHttpNotifier1._1.uri + " - " + "test1.com" + streamID +"signal")
+    //println(messageToHttpNotifier1._1.uri + " - " + "test1.com" + streamID +"signal")
     //assert(messageToHttpNotifier1.uri == "test1.com/" + streamID +"/signal")
     //assert(messageToHttpNotifier2.uri == "test2.com/" + streamID +"/signal")
-    assert(messageToHttpNotifier1._1.content.contains("234.453"))
+    assert(messageToHttpNotifier1._1.body.contains("234.453"))
 
   }
 

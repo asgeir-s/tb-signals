@@ -11,6 +11,7 @@ import com.typesafe.config.ConfigFactory
 class NotifyActor(httpNotifierActor: ActorRef) extends Actor with ActorLogging {
 
   private val config = ConfigFactory.load()
+  val streamServiceHost = config.getString("microservices.streams")
 
   //create a new SNS client and set endpoint
   private val credentials = new BasicAWSCredentials(config.getString("aws.accessKeyId"), config.getString("aws.secretAccessKey"))
@@ -33,14 +34,7 @@ class NotifyActor(httpNotifierActor: ActorRef) extends Actor with ActorLogging {
       //print MessageId of message published to SNS topic
       log.info("NotifyActor: Published signals to SNS. MessageId: " + publishResult.getMessageId)
 
-      val rawHttpSubscribers = config.getString("httpSignalSubscribers")
-      val subscriberList = rawHttpSubscribers.replace("\"", "").replace(" ", "").split(',')
-      val httpSubscribers = subscriberList.map(_.replace("'streamID'", streamID))
-
-      httpSubscribers.map{ x =>
-        httpNotifierActor ! (HttpNotification(x, signalsString), 0)
-        log.info("NotifyActor: Sent HTTP-notifications to: " + x)
-      }
+      httpNotifierActor ! (HttpNotification(streamServiceHost, "/streams/" + streamID + "/signals", signalsString), 0)
 
   }
 }
