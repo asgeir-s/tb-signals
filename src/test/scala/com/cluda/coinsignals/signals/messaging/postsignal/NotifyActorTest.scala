@@ -44,12 +44,12 @@ class NotifyActorTest extends MessagingTest {
     val streamID = "test-stream-id"
     val actor = TestActorRef(NotifyActor.props(httpNotifierProbe.ref), "notifyActor1")
     actor ! (streamID, topicArn, Seq(TestData.signal1))
-    val messageToHttpNotifier1 = httpNotifierProbe.expectMsgType[HttpNotification]
-    val messageToHttpNotifier2 = httpNotifierProbe.expectMsgType[HttpNotification]
-    println(messageToHttpNotifier1.uri + " - " + "test1.com" + streamID +"signal")
+    val messageToHttpNotifier1 = httpNotifierProbe.expectMsgType[(HttpNotification, Int)]
+    val messageToHttpNotifier2 = httpNotifierProbe.expectMsgType[(HttpNotification, Int)]
+    println(messageToHttpNotifier1._1.uri + " - " + "test1.com" + streamID +"signal")
     //assert(messageToHttpNotifier1.uri == "test1.com/" + streamID +"/signal")
     //assert(messageToHttpNotifier2.uri == "test2.com/" + streamID +"/signal")
-    assert(messageToHttpNotifier1.content.contains("234.453"))
+    assert(messageToHttpNotifier1._1.content.contains("234.453"))
 
   }
 

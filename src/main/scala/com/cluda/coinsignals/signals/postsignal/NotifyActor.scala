@@ -37,8 +37,10 @@ class NotifyActor(httpNotifierActor: ActorRef) extends Actor with ActorLogging {
       val subscriberList = rawHttpSubscribers.replace("\"", "").replace(" ", "").split(',')
       val httpSubscribers = subscriberList.map(_.replace("'streamID'", streamID))
 
-      httpSubscribers.map(httpNotifierActor ! HttpNotification(_, signalsString))
-      log.info("NotifyActor: Sent HTTP-notifications to: " + httpSubscribers)
+      httpSubscribers.map{ x =>
+        httpNotifierActor ! (HttpNotification(x, signalsString), 0)
+        log.info("NotifyActor: Sent HTTP-notifications to: " + x)
+      }
 
   }
 }
