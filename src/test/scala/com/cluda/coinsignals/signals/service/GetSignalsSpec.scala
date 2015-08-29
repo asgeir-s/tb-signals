@@ -29,6 +29,20 @@ class GetSignalsSpec extends TestService {
     }
   }
 
+  it should "responds withe all cloased signals when 'onlyClosed' is true" in {
+    Get("/streams/" + streamID + "/signals?onlyClosed=true") ~> routes ~> check {
+      status shouldBe OK
+      import SignalJsonProtocol._
+      import spray.json._
+      val signals =  responseAs[String].parseJson.convertTo[List[Signal]]
+
+      assert(signals.length == 12)
+      assert(signals.head.id isDefined)
+      assert(signals.head.price > 0)
+      assert(signals.head.timestamp > 11100L)
+    }
+  }
+
   it should "responds withe an error when the theire is no stream with the given streamID" in {
     Get("/streams/" + "notexisting" + "/signals") ~> routes ~> check {
       status shouldBe NoContent

@@ -34,7 +34,7 @@ class DatabaseReaderActor extends Actor with ActorLogging {
             s ! DatabaseReadException("error from database. Probably database for the stream does not exist")
         }
       }
-      else if(paramseters.isValid) {
+      else if (paramseters.isValid) {
         val query: slick.lifted.Query[SignalTable, Signal, Seq] = {
           if (paramseters.lastN isDefined) {
             signalsTable.sortBy(_.id.desc).take(paramseters.lastN.get)
@@ -66,6 +66,9 @@ class DatabaseReaderActor extends Actor with ActorLogging {
             //println("toTime:" + paramseters.beforeTime.get)
             signalsTable.filter(_.timestamp < paramseters.beforeTime.get).sortBy(_.id.desc)
           }
+            else if(paramseters.onlyClosed isDefined) {
+            signalsTable.sortBy(_.id.desc)
+          }
           else {
             log.error("DatabaseReaderActor: valid parameters was defined but dodent match any combination. Error!! Returning no signals.")
             signalsTable.take(0)
@@ -74,7 +77,19 @@ class DatabaseReaderActor extends Actor with ActorLogging {
 
         database.run(query.result).map {
           case signals: Seq[Signal] =>
-            s ! signals
+            println("BUT: " + paramseters.onlyClosed)
+            if (paramseters.onlyClosed.isDefined && paramseters.onlyClosed.get) {
+              println("HAPPENDS")
+              if (signals.head.signal != 0) {
+                s ! signals.drop(1)
+              }
+              else {
+                s ! signals
+              }
+            }
+            else {
+              s ! signals
+            }
         }.recover {
           case _ =>
             log.error("DatabaseReaderActor: error from database. Probably database for the stream does not exist")
@@ -83,7 +98,7 @@ class DatabaseReaderActor extends Actor with ActorLogging {
       }
       else {
         log.error("invalid combination of parameters: " + paramseters)
-        s ! InalidCombinationOfParametersException("invalid combination of parameters: "+ paramseters)
+        s ! InalidCombinationOfParametersException("invalid combination of parameters: " + paramseters)
       }
 
   }

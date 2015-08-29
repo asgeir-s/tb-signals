@@ -77,7 +77,7 @@ trait Service {
               }
             } ~
               get {
-                parameters('fromId.as[Long].?, 'toId.as[Long].?, 'afterTime.as[Long].?, 'beforeTime.as[Long].?, 'lastN.as[Int].?).as(GetSignalsParams) { params =>
+                parameters('onlyClosed.as[Boolean].?, 'fromId.as[Long].?, 'toId.as[Long].?, 'afterTime.as[Long].?, 'beforeTime.as[Long].?, 'lastN.as[Int].?).as(GetSignalsParams) { params =>
                   complete {
                     if (params.isValid) {
                       perRequestActor[GetSignals](

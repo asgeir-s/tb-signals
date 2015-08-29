@@ -6,6 +6,7 @@ case class GetSignals(
   )
 
 case class GetSignalsParams(
+  onlyClosed: Option[Boolean] = None,
   fromId: Option[Long] = None,
   toId: Option[Long] = None,
   afterTime: Option[Long] = None,
@@ -13,6 +14,7 @@ case class GetSignalsParams(
   lastN: Option[Int] = None
   ) {
   def hasParameters: Boolean =
+    onlyClosed.isDefined ||
     fromId.isDefined ||
       toId.isDefined ||
       afterTime.isDefined ||
