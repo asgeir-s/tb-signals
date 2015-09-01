@@ -59,49 +59,49 @@ trait Service {
         HttpResponse(OK, entity = "runID: " + runID)
       }
     } ~
-        pathPrefix("streams" / Segment) { streamID =>
-          pathPrefix("signals") {
-            post {
-              entity(as[String]) { signal =>
-                  complete {
-                    if (List(-1, 0, 1).contains(signal.toInt)) {
-                      perRequestActor[Meta](
-                        PostSignalActor.props(getExchangeActor),
-                        Meta(None, streamID, signal.toInt, None, None, None, None)
-                      )
-                    }
-                    else {
-                      HttpResponse(BadRequest, entity = "BadRequest")
-                    }
-                  }
+      pathPrefix("streams" / Segment) { streamID =>
+        pathPrefix("signals") {
+          post {
+            entity(as[String]) { signal =>
+              complete {
+                if (List(-1, 0, 1).contains(signal.toInt)) {
+                  perRequestActor[Meta](
+                    PostSignalActor.props(getExchangeActor),
+                    Meta(None, streamID, signal.toInt, None, None, None, None)
+                  )
+                }
+                else {
+                  HttpResponse(BadRequest, entity = "BadRequest")
+                }
               }
-            } ~
-              get {
-                parameters('onlyClosed.as[Boolean].?, 'fromId.as[Long].?, 'toId.as[Long].?, 'afterTime.as[Long].?, 'beforeTime.as[Long].?, 'lastN.as[Int].?).as(GetSignalsParams) { params =>
-                  complete {
-                    if (params.isValid) {
-                      perRequestActor[GetSignals](
-                        GetSignalsActor.props(databaseReaderActor),
-                        GetSignals(streamID, params)
-                      )
-                    }
-                    else {
-                      HttpResponse(BadRequest, entity = "invalid combination of parameters")
-                    }
+            }
+          } ~
+            get {
+              parameters('onlyClosed.as[Boolean].?, 'fromId.as[Long].?, 'toId.as[Long].?, 'afterTime.as[Long].?, 'beforeTime.as[Long].?, 'lastN.as[Int].?).as(GetSignalsParams) { params =>
+                complete {
+                  if (params.isValid) {
+                    perRequestActor[GetSignals](
+                      GetSignalsActor.props(databaseReaderActor),
+                      GetSignals(streamID, params)
+                    )
+                  }
+                  else {
+                    HttpResponse(BadRequest, entity = "invalid combination of parameters")
                   }
                 }
               }
-          } ~
-            pathPrefix("status") {
-              complete {
-                perRequestActor[GetSignals](
-                  GetSignalsActor.props(databaseReaderActor),
-                  GetSignals(streamID, GetSignalsParams(lastN = Some(1)))
-                )
-              }
             }
+        } ~
+          pathPrefix("status") {
+            complete {
+              perRequestActor[GetSignals](
+                GetSignalsActor.props(databaseReaderActor),
+                GetSignals(streamID, GetSignalsParams(lastN = Some(1)))
+              )
+            }
+          }
 
-        }
+      }
 
   }
 
