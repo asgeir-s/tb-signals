@@ -20,14 +20,14 @@ import scala.concurrent.{ExecutionContextExecutor, Future}
 
 trait Service {
   implicit val system: ActorSystem
-
   implicit def executor: ExecutionContextExecutor
-
   implicit val materializer: Materializer
   implicit val timeout: Timeout
 
   val config: Config
   val logger: LoggingAdapter
+  val runID = UUID.randomUUID()
+  var actorIDs = Map[String, Long]()
 
   val getExchangeActor: ActorRef
   val databaseWriterActor: ActorRef
@@ -36,8 +36,19 @@ trait Service {
   val notificationActor: ActorRef
   val httpNotifyActor: ActorRef
 
-  val runID = UUID.randomUUID()
 
+  def actorName(props: Props): String = {
+    val classPath = props.actorClass().toString
+    val className = classPath.substring(classPath.lastIndexOf('.') + 1)
+    val id: Long = actorIDs.getOrElse(className, 0)
+    if (id == 0) {
+      actorIDs = actorIDs+(className -> 1)
+    }
+    else {
+      actorIDs = actorIDs+(className -> (id + 1))
+    }
+    className + id
+  }
 
   /**
    * Start a actor and pass it the decodedHttpRequest.
@@ -48,15 +59,18 @@ trait Service {
    * @return Future[HttpResponse]
    */
   def perRequestActor[T](props: Props, message: T): Future[HttpResponse] = {
-    (system.actorOf(props) ? message)
-      .recover { case _ => HttpResponse(BadRequest, entity = "BadRequest") }
+    (system.actorOf(props, actorName(props)) ? message)
+      .recover { case _ => HttpResponse(InternalServerError, entity = "InternalServerError") }
       .asInstanceOf[Future[HttpResponse]]
   }
 
   val routes = {
+    import spray.json._
+    import DefaultJsonProtocol._
+
     pathPrefix("ping") {
       complete {
-        HttpResponse(OK, entity = "runID: " + runID)
+        HttpResponse(OK, entity = Map("runID" -> runID.toString).toJson.prettyPrint)
       }
     } ~
       pathPrefix("streams" / Segment) { streamID =>

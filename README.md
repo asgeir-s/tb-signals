@@ -23,6 +23,13 @@ Error: ava.security.InvalidKeyException: Illegal key size or default parameters 
 	RDS_DB_NAME
 	RDS_USERNAME
 	RDS_PASSWORD
+	
+### Test parameters
+LOG_LEVEL=DEBUG
+AWS_SECRET_KEY=P278leit/4LMesq06ZXydphMJFGkhHfDroAym+bX
+AWS_ACCESS_KEY_ID=AKIAJRRRJ47YBGWBQ57A
+STREAMS_SERVICE_PORT=80
+STREAMS_SERVICE_ADDRESS=cs-streams-staging.elasticbeanstalk.com
 
 ## OSX Set Up
 ##### Docker
