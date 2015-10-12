@@ -1,6 +1,9 @@
 package com.cluda.coinsignals.signals.messaging.getsignal
 
+import java.util.UUID
+
 import akka.actor.Props
+import akka.http.scaladsl.model.headers.RawHeader
 import akka.testkit.{TestActorRef, TestProbe}
 import com.cluda.coinsignals.signals.DatabaseUtilBlockingForTests
 import com.cluda.coinsignals.signals.getsignal.DatabaseReaderActor
@@ -12,6 +15,8 @@ import com.cluda.coinsignals.signals.protocoll.{GetSignalsParams, DatabaseReadEx
 class DatabaseReaderActorTest extends MessagingTest {
 
   val testStream = "databasereaderactortest"
+  def globalRequestID = UUID.randomUUID().toString
+
 
   override def beforeAll(): Unit = {
     DatabaseUtilBlockingForTests.dropTableIfItExists(testStream, context)
@@ -23,8 +28,8 @@ class DatabaseReaderActorTest extends MessagingTest {
     val getSignalsActor = TestProbe()
     val actor = TestActorRef(Props[DatabaseReaderActor], "DatabaseReaderActor1")
 
-    getSignalsActor.send(actor, GetSignals(testStream))
-    val respond = getSignalsActor.expectMsgType[Seq[Signal]]
+    getSignalsActor.send(actor, (globalRequestID, GetSignals(testStream)))
+    val respond = getSignalsActor.expectMsgType[(String, Seq[Signal])]._2
     assert(respond.length == 13)
   }
 
@@ -33,8 +38,8 @@ class DatabaseReaderActorTest extends MessagingTest {
     val getSignalsActor = TestProbe()
     val actor = TestActorRef(Props[DatabaseReaderActor], "DatabaseReaderActor2")
 
-    getSignalsActor.send(actor, GetSignals("notexistingdb"))
-    val respond = getSignalsActor.expectMsgType[DatabaseReadException]
+    getSignalsActor.send(actor, (globalRequestID, GetSignals("notexistingdb")))
+    val respond = getSignalsActor.expectMsgType[(String, DatabaseReadException)]._2
     assert(respond.reason.contains("not exist"))
 
   }
@@ -44,8 +49,8 @@ class DatabaseReaderActorTest extends MessagingTest {
     val getSignalsActor = TestProbe()
     val actor = TestActorRef(Props[DatabaseReaderActor], "DatabaseReaderActor3")
 
-    getSignalsActor.send(actor, GetSignals(testStream, GetSignalsParams(lastN = Some(3))))
-    val respond = getSignalsActor.expectMsgType[Seq[Signal]]
+    getSignalsActor.send(actor, (globalRequestID, GetSignals(testStream, GetSignalsParams(lastN = Some(3)))))
+    val respond = getSignalsActor.expectMsgType[(String, Seq[Signal])]._2
     assert(respond.length == 3)
     respond.foreach(x => assert(x.id.get > 10))
     assert(respond(0).id.get > respond(1).id.get)
@@ -56,8 +61,8 @@ class DatabaseReaderActorTest extends MessagingTest {
     val getSignalsActor = TestProbe()
     val actor = TestActorRef(Props[DatabaseReaderActor], "DatabaseReaderActor4")
 
-    getSignalsActor.send(actor, GetSignals(testStream, GetSignalsParams(lastN = Some(10))))
-    val respond = getSignalsActor.expectMsgType[Seq[Signal]]
+    getSignalsActor.send(actor, (globalRequestID, GetSignals(testStream, GetSignalsParams(lastN = Some(10)))))
+    val respond = getSignalsActor.expectMsgType[(String, Seq[Signal])]._2
     assert(respond.length == 10)
     respond.foreach(x => assert(x.id.get > 3))
     assert(respond(0).id.get > respond(1).id.get)

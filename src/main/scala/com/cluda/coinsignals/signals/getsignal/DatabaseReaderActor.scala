@@ -19,19 +19,19 @@ class DatabaseReaderActor extends Actor with ActorLogging {
   implicit val executionContext: ExecutionContext = context.system.dispatcher
 
   override def receive: Receive = {
-    case GetSignals(streamID: String, paramseters: GetSignalsParams) =>
-      log.info("DatabaseReaderActor: got GetSignals with stream id " + streamID + " and getSignalsParams set to " + paramseters)
+    case (globalRequestID: String, GetSignals(streamID: String, paramseters: GetSignalsParams)) =>
+      log.info(s"[$globalRequestID]: Got GetSignals with stream id " + streamID + " and getSignalsParams set to " + paramseters)
       val s = sender()
       val signalsTable = TableQuery[SignalTable]((tag: Tag) => new SignalTable(tag, streamID))
 
       if (!paramseters.hasParameters) {
         database.run(signalsTable.sortBy(_.id.desc).result).map {
           case signals: Seq[Signal] =>
-            s ! signals
+            s ! (globalRequestID, signals)
         }.recover {
           case _ =>
-            log.error("DatabaseReaderActor: error from database. Probably database for the stream does not exist")
-            s ! DatabaseReadException("error from database. Probably database for the stream does not exist")
+            log.error(s"[$globalRequestID]: Error from database. Probably database for the stream does not exist")
+            s ! (globalRequestID, DatabaseReadException("error from database. Probably database for the stream does not exist"))
         }
       }
       else if (paramseters.isValid) {
@@ -70,35 +70,33 @@ class DatabaseReaderActor extends Actor with ActorLogging {
             signalsTable.sortBy(_.id.desc)
           }
           else {
-            log.error("DatabaseReaderActor: valid parameters was defined but dodent match any combination. Error!! Returning no signals.")
+            log.error(s"[$globalRequestID]: Valid parameters was defined but dodent match any combination. Error!! Returning no signals.")
             signalsTable.take(0)
           }
         }
 
         database.run(query.result).map {
           case signals: Seq[Signal] =>
-            println("BUT: " + paramseters.onlyClosed)
             if (paramseters.onlyClosed.isDefined && paramseters.onlyClosed.get) {
-              println("HAPPENDS")
               if (signals.head.signal != 0) {
-                s ! signals.drop(1)
+                s ! (globalRequestID, signals.drop(1))
               }
               else {
-                s ! signals
+                s ! (globalRequestID, signals)
               }
             }
             else {
-              s ! signals
+              s ! (globalRequestID, signals)
             }
         }.recover {
           case _ =>
-            log.error("DatabaseReaderActor: error from database. Probably database for the stream does not exist")
-            s ! DatabaseReadException("error from database. Probably database for the stream does not exist")
+            log.error(s"[$globalRequestID]: Error from database. Probably database for the stream does not exist")
+            s ! (globalRequestID, DatabaseReadException("error from database. Probably database for the stream does not exist"))
         }
       }
       else {
-        log.error("invalid combination of parameters: " + paramseters)
-        s ! InalidCombinationOfParametersException("invalid combination of parameters: " + paramseters)
+        log.error(s"[$globalRequestID]: Invalid combination of parameters: " + paramseters)
+        s ! (globalRequestID, InalidCombinationOfParametersException("invalid combination of parameters: " + paramseters))
       }
 
   }

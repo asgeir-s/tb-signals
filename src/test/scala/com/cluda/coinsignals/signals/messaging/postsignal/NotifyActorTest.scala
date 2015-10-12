@@ -1,5 +1,7 @@
 package com.cluda.coinsignals.signals.messaging.postsignal
 
+import java.util.UUID
+
 import akka.actor.Props
 import akka.testkit.{TestProbe, TestActorRef}
 import com.amazonaws.auth.BasicAWSCredentials
@@ -39,23 +41,25 @@ class NotifyActorTest extends MessagingTest {
     //println("DeleteTopicRequest - " + snsClient.getCachedResponseMetadata(deleteTopicRequest))
   }
 
+  def globalRequestID = UUID.randomUUID().toString
+
   "when receiving a signal it" should
     "should send a notification to the SNS topic and send HTTP-notifications with the signal" in {
     val streamID = "test-stream-id"
     val actor = TestActorRef(NotifyActor.props(httpNotifierProbe.ref), "notifyActor1")
-    actor ! (streamID, topicArn, Seq(TestData.signal1))
-    val messageToHttpNotifier1 = httpNotifierProbe.expectMsgType[(HttpNotification, Int)]
+    actor ! (globalRequestID, streamID, topicArn, Seq(TestData.signal1))
+    val messageToHttpNotifier1 = httpNotifierProbe.expectMsgType[(String, HttpNotification, Int)]
     //println(messageToHttpNotifier1._1.uri + " - " + "test1.com" + streamID +"signal")
     //assert(messageToHttpNotifier1.uri == "test1.com/" + streamID +"/signal")
     //assert(messageToHttpNotifier2.uri == "test2.com/" + streamID +"/signal")
-    assert(messageToHttpNotifier1._1.body.contains("234.453"))
+    assert(messageToHttpNotifier1._2.body.contains("234.453"))
 
   }
 
   "when receiving multiple signals it" should
     "should send a notification to the SNS topic with the signals" in {
-    val actor = TestActorRef(NotifyActor.props(httpNotifierProbe.ref), "notifyActor2")
-    actor ! Seq(TestData.signalSeq(11), TestData.signalSeq(12))
+   // val actor = TestActorRef(NotifyActor.props(httpNotifierProbe.ref), "notifyActor2")
+   // actor ! (globalRequestID, Seq(TestData.signalSeq(11), TestData.signalSeq(12)))
   }
 
 }

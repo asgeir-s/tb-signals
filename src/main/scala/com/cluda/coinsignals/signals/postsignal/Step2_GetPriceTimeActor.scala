@@ -18,7 +18,7 @@ class Step2_GetPriceTimeActor(writeDatabaseActor: ActorRef) extends Actor with A
   var refreshTime: Map[String, Long] = Map("bitstamp" -> 0, "bitfinex" -> 0)
 
 
-  def getPrice(exchangeName: String): Option[(BigDecimal, Long)] = {
+  def getPrice(globalRequestID: String, exchangeName: String): Option[(BigDecimal, Long)] = {
     val exchange: Option[Exchange] = {
       if (exchangeName == "bitstamp") {
         Some(ExchangeFactory.INSTANCE.createExchange(classOf[BitstampExchange].getName))
@@ -40,7 +40,7 @@ class Step2_GetPriceTimeActor(writeDatabaseActor: ActorRef) extends Actor with A
           Some(price(exchangeName), refreshTime(exchangeName))
         } catch {
           case e: Throwable =>
-            log.error("marketDataService failed to get the price")
+            log.error(s"[$globalRequestID]: marketDataService failed to get the price")
             None
         }
       }
@@ -49,23 +49,23 @@ class Step2_GetPriceTimeActor(writeDatabaseActor: ActorRef) extends Actor with A
       }
     }
     else {
-      log.error("not valid exchange name")
+      log.error(s"[$globalRequestID]: not valid exchange name")
       None
     }
 
   }
 
   override def receive: Receive = {
-    case meta: Meta =>
-      log.info("Step2_GetPriceTimeActor got meta: " + meta)
-      val priceTime = getPrice(meta.exchange.get)
+    case (globalRequestID: String, meta: Meta) =>
+      log.info(s"[$globalRequestID]: Got meta: " + meta)
+      val priceTime = getPrice(globalRequestID, meta.exchange.get)
       if (priceTime isDefined) {
-        log.info("at time " + priceTime.get._2 + " price for " + meta.exchange.get + " is " + priceTime.get._1)
-        writeDatabaseActor ! MetaUtil.setPriceTime(meta, priceTime.get._1, priceTime.get._2)
+        log.info(s"[$globalRequestID]: at time " + priceTime.get._2 + " price for " + meta.exchange.get + " is " + priceTime.get._1)
+        writeDatabaseActor ! (globalRequestID, MetaUtil.setPriceTime(meta, priceTime.get._1, priceTime.get._2))
       }
       else {
-        log.error("could not get price")
-        meta.respondsActor.get ! SignalProcessingException("could not get price")
+        log.error(s"[$globalRequestID]: could not get price")
+        meta.respondsActor.get ! (globalRequestID, SignalProcessingException(s"[$globalRequestID]: could not get price"))
       }
   }
 }

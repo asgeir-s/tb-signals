@@ -2,7 +2,7 @@ organization := "com.cluda"
 
 name := "signals"
 
-version := "0.0.1"
+version := "0.1.0"
 
 scalaVersion := "2.11.6"
 
@@ -19,12 +19,13 @@ mainClass in assembly := Some("com.cluda.coinsignals.signals.Boot")
 resolvers += "sonatype-oss-snapshot" at "https://oss.sonatype.org/content/repositories/snapshots" // for xchange snapshots
 
 libraryDependencies ++= {
-  val akkaV       = "2.3.11"
+  val akkaV       = "2.3.14"
   val akkaStreamV = "1.0"
   val scalaTestV  = "2.2.4"
   val xchangeV = "3.0.1-SNAPSHOT"
   Seq(
-    //"com.typesafe.akka"   %%    "akka-actor"                              %     akkaV,
+    "com.typesafe.akka"     %%    "akka-actor"                              %     akkaV,
+    "com.typesafe.akka"     %%    "akka-slf4j"                              %     akkaV,
     "com.typesafe.akka"     %%    "akka-stream-experimental"                %     akkaStreamV,
     "com.typesafe.akka"     %%    "akka-http-core-experimental"             %     akkaStreamV,
     "com.typesafe.akka"     %%    "akka-http-experimental"                  %     akkaStreamV,
@@ -38,7 +39,8 @@ libraryDependencies ++= {
     "org.postgresql"         %    "postgresql"                              %     "9.4-1201-jdbc41",
     "com.amazonaws"          %    "aws-java-sdk-sns"                        %     "1.10.+",
     "commons-codec"          %    "commons-codec"                           %     "1.10",
-    "org.bitbucket.b_c"      %    "jose4j"                                  %     "0.4.3"
+    "org.bitbucket.b_c"      %    "jose4j"                                  %     "0.4.3",
+    "ch.qos.logback"         %    "logback-classic"                         %     "1.1.3"
 
   )
 }

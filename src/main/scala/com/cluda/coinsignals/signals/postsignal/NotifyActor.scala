@@ -21,8 +21,8 @@ class NotifyActor(httpNotifierActor: ActorRef) extends Actor with ActorLogging {
 
 
   override def receive: Receive = {
-    case (streamID: String, arn: String, signals: Seq[Signal]) =>
-      log.info("NotifyActor: Received " + signals.length + "new signal(s).")
+    case (globalRequestID: String, streamID: String, arn: String, signals: Seq[Signal]) =>
+      log.info(s"[$globalRequestID]: Received " + signals.length + "new signal(s).")
       import SignalJsonProtocol._
       import spray.json._
 
@@ -33,10 +33,10 @@ class NotifyActor(httpNotifierActor: ActorRef) extends Actor with ActorLogging {
       val publishResult: PublishResult = snsClient.publish(publishRequest)
 
       //print MessageId of message published to SNS topic
-      log.info("NotifyActor: Published signals to SNS. MessageId: " + publishResult.getMessageId)
+      log.info(s"[$globalRequestID]: Published signals to SNS. MessageId: " + publishResult.getMessageId)
 
-      httpNotifierActor ! (HttpNotification(streamServiceHost, "/streams/" + streamID + "/signals", signalsString), 0)
-      httpNotifierActor ! (HttpNotification(emailNotifyServiceHost, "/streams/" + streamID + "/signals", signalsString), 0)
+      httpNotifierActor ! (globalRequestID, HttpNotification(streamServiceHost, "/streams/" + streamID + "/signals", signalsString), 3)
+      httpNotifierActor ! (globalRequestID, HttpNotification(emailNotifyServiceHost, "/streams/" + streamID + "/signals", signalsString), 3)
 
   }
 }

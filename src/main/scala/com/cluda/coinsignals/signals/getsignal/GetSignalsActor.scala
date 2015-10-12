@@ -8,26 +8,26 @@ import com.cluda.coinsignals.signals.protocoll.{InalidCombinationOfParametersExc
 
 class GetSignalsActor(databaseReaderActor: ActorRef) extends Actor with ActorLogging {
   override def receive: Receive = {
-    case request: GetSignals =>
-      log.info("GetSignalsActor: Got GetSignals. Forwarding to databaseReaderActor and becoming responder")
-      databaseReaderActor ! request
+    case (globalRequestID: String, request: GetSignals) =>
+      log.info(s"[$globalRequestID]: Got GetSignals. Forwarding to databaseReaderActor and becoming responder")
+      databaseReaderActor ! (globalRequestID, request)
       context.become(responder(sender()))
   }
 
   def responder(respondTo: ActorRef): Receive = {
-    case signals: Seq[Signal] =>
-      log.info("GetSignalsActor: Got signal(s) back: " + signals)
+    case (globalRequestID: String, signals: Seq[Signal]) =>
+      log.info(s"[$globalRequestID]: Got signal(s) back: " + signals)
       import SignalJsonProtocol._
       import spray.json._
       respondTo ! HttpResponse(OK, entity = signals.map(_.toJson).toJson.prettyPrint)
       self ! PoisonPill
 
-    case e: DatabaseReadException =>
-      log.error("GetSignalsActor returns 'no stream with that id'. Reason: " + e.reason)
+    case (globalRequestID: String, e: DatabaseReadException) =>
+      log.error(s"[$globalRequestID]: returns 'no stream with that id'. Reason: " + e.reason)
       respondTo ! HttpResponse(NoContent)
 
-    case e: InalidCombinationOfParametersException =>
-      log.error(e.info)
+    case (globalRequestID: String, e: InalidCombinationOfParametersException) =>
+      log.error(s"[$globalRequestID]: Reason: "  + e.info)
       respondTo ! HttpResponse(BadRequest, entity = "invalid combination of parameters")
   }
 }

@@ -1,5 +1,7 @@
 package com.cluda.coinsignals.signals.messaging.postsignal
 
+import java.util.UUID
+
 import akka.actor.Props
 import akka.http.scaladsl.model.HttpResponse
 import akka.http.scaladsl.model.StatusCodes._
@@ -12,16 +14,17 @@ import com.cluda.coinsignals.signals.protocoll.SignalProcessingException
 
 class PostSignalActorTest extends MessagingTest {
 
+  def globalRequestID = UUID.randomUUID().toString
+
   "when receiving 'Meta' it" should
     "set itself as 'respondsActor' and send the new 'Meta' to the 'getExchangeActor'" in {
     // mocks
     val getExchangeActor = TestProbe()
     val parent = TestProbe()
-
     val actor = TestActorRef(Props(new PostSignalActor(getExchangeActor.ref)), parent.ref, "postSignalActorTest")
 
-    actor ! Meta(None, "test-id", 1, None, None, None, None)
-    val newMeta = getExchangeActor.expectMsgType[Meta]
+    actor ! (globalRequestID, Meta(None, "test-id", 1, None, None, None, None))
+    val newMeta = getExchangeActor.expectMsgType[(String, Meta)]._2
     assert(newMeta.respondsActor.get == actor)
   }
 
@@ -32,9 +35,9 @@ class PostSignalActorTest extends MessagingTest {
     val interface = TestProbe()
 
     val actor = TestActorRef(Props(new PostSignalActor(getExchangeActor.ref)), "postSignalActorTest2")
-    interface.send(actor, Meta(None, "test-id", 1, None, None, None, None)) // become reponder
+    interface.send(actor, (globalRequestID, Meta(None, "test-id", 1, None, None, None, None))) // become reponder
 
-    actor ! Seq(TestData.signal1)
+    actor ! (globalRequestID, Seq(TestData.signal1))
     val responseParent = interface.expectMsgType[HttpResponse]
     import SignalJsonProtocol._
     import spray.json._
@@ -55,13 +58,13 @@ class PostSignalActorTest extends MessagingTest {
     val interface = TestProbe()
 
     val actor = TestActorRef(Props(new PostSignalActor(getExchangeActor.ref)), "postSignalActorTest3")
-    interface.send(actor, Meta(None, "test-id", 1, None, None, None, None)) // become reponder
+    interface.send(actor, (globalRequestID, Meta(None, "test-id", 1, None, None, None, None))) // become reponder
 
-    actor ! SignalProcessingException("some error")
+    actor ! (globalRequestID, SignalProcessingException("some error"))
     val responseParent = interface.expectMsgType[HttpResponse]
 
     // check that the actor killed itself
-    actor ! TestData.signal1
+    actor ! (globalRequestID, TestData.signal1)
     interface.expectNoMsg()
   }
 

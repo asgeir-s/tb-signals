@@ -6,33 +6,33 @@ import akka.http.scaladsl.model.StatusCodes._
 import com.cluda.coinsignals.signals.model.{Meta, Signal, SignalJsonProtocol}
 import com.cluda.coinsignals.signals.protocoll.SignalProcessingException
 import com.cluda.coinsignals.signals.util.MetaUtil
+import SignalJsonProtocol._
+import spray.json._
 
 
 class PostSignalActor(getExchangeActor: ActorRef) extends Actor with ActorLogging {
   log.info("PostSignalActor started on address " + self)
   override def receive: Receive = {
-    case meta: Meta =>
-      log.info("PostSignalActor got 'Meta' object -> sends it to getExchangeActor and waits for responds")
-      getExchangeActor ! MetaUtil.setRespondsActor(meta, self)
+    case (globalRequestID: String, meta: Meta) =>
+      log.info(s"[$globalRequestID]: Got 'Meta' object -> sends it to getExchangeActor and waits for responds")
+      getExchangeActor ! (globalRequestID, MetaUtil.setRespondsActor(meta, self))
       context.become(responder(sender()))
   }
 
   def responder(respondTo: ActorRef): Receive = {
 
-    case signals: Seq[Signal] =>
-      log.info("PostSignalActor: Got signal(s) back: " + signals)
-      import SignalJsonProtocol._
-      import spray.json._
+    case (globalRequestID: String, signals: Seq[Signal]) =>
+      log.info(s"[$globalRequestID]: Got signal(s) back: " + signals)
       respondTo ! HttpResponse(OK, entity = signals.map(_.toJson).toJson.prettyPrint)
       self ! PoisonPill
 
-    case e: SignalProcessingException if e.reason.contains("Conflict") =>
-      log.error("Got SignalProcessingException: " + e.reason)
+    case (globalRequestID: String, e: SignalProcessingException) if e.reason.contains("Conflict") =>
+      log.error(s"[$globalRequestID]: Got SignalProcessingException: " + e.reason)
       respondTo ! HttpResponse(Conflict, entity = "duplicate")
       self ! PoisonPill
 
-    case e: SignalProcessingException =>
-      log.error("Got SignalProcessingException: " + e.reason)
+    case (globalRequestID: String, e: SignalProcessingException) =>
+      log.error(s"[$globalRequestID]: Got SignalProcessingException: " + e.reason)
       if(e.reason.contains("cold not get the exchange")) {
         respondTo ! HttpResponse(NotFound, entity = "no stream with that ID")
       }

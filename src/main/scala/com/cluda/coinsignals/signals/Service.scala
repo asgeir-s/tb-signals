@@ -15,6 +15,9 @@ import com.cluda.coinsignals.signals.model.Meta
 import com.cluda.coinsignals.signals.postsignal.PostSignalActor
 import com.cluda.coinsignals.signals.protocoll.{GetSignals, GetSignalsParams}
 import com.typesafe.config.Config
+import spray.json._
+import DefaultJsonProtocol._
+
 
 import scala.concurrent.{ExecutionContextExecutor, Future}
 
@@ -65,58 +68,68 @@ trait Service {
   }
 
   val routes = {
-    import spray.json._
-    import DefaultJsonProtocol._
-
-    pathPrefix("ping") {
-      complete {
-        HttpResponse(OK, entity = Map("runID" -> runID.toString).toJson.prettyPrint)
-      }
-    } ~
-      pathPrefix("streams" / Segment) { streamID =>
-        pathPrefix("signals") {
-          post {
-            entity(as[String]) { signal =>
-              complete {
-                if (List(-1, 0, 1).contains(signal.toInt)) {
-                  perRequestActor[Meta](
-                    PostSignalActor.props(getExchangeActor),
-                    Meta(None, streamID, signal.toInt, None, None, None, None)
-                  )
-                }
-                else {
-                  HttpResponse(BadRequest, entity = "BadRequest")
+    headerValueByName("Global-Request-ID") { globalRequestID =>
+      pathPrefix("ping") {
+        complete {
+          logger.info(s"[$globalRequestID]: " + "Answering ping request")
+          HttpResponse(OK, entity = Map("runID" -> runID.toString, "globalRequestID" -> globalRequestID).toJson.prettyPrint)
+        }
+      } ~
+        pathPrefix("streams" / Segment) { streamID =>
+          pathPrefix("signals") {
+            post {
+              entity(as[String]) { signalString =>
+                try {
+                  val signal = signalString.toInt
+                  complete {
+                    if (List(-1, 0, 1).contains(signal)) {
+                      logger.info(s"[$globalRequestID]: Got new signal: $signal. For stream: $streamID.")
+                      perRequestActor[(String, Meta)](
+                      PostSignalActor.props(getExchangeActor),
+                      (globalRequestID, Meta(None, streamID, signal, None, None, None, None)))
+                    }
+                    else {
+                      logger.error(s"[$globalRequestID]: Got unknown signal: $signal. Returning 'BadRequest'. For stream: $streamID.")
+                      HttpResponse(BadRequest, entity = "BadRequest")
+                    }
+                  }
+                } catch {
+                  case e: Throwable =>
+                    logger.error(s"[$globalRequestID]: Got unknown signal: $signalString. Returning 'BadRequest'. For stream: $streamID. Error: " + e.toString)
+                    complete(HttpResponse(BadRequest, entity = "BadRequest"))
                 }
               }
-            }
-          } ~
-            get {
-              parameters('onlyClosed.as[Boolean].?, 'fromId.as[Long].?, 'toId.as[Long].?, 'afterTime.as[Long].?, 'beforeTime.as[Long].?, 'lastN.as[Int].?).as(GetSignalsParams) { params =>
-                complete {
-                  if (params.isValid) {
-                    perRequestActor[GetSignals](
+            } ~
+              get {
+                parameters('onlyClosed.as[Boolean].?, 'fromId.as[Long].?, 'toId.as[Long].?, 'afterTime.as[Long].?, 'beforeTime.as[Long].?, 'lastN.as[Int].?).as(GetSignalsParams) { params =>
+                  complete {
+                    if (params.isValid) {
+                      logger.info(s"[$globalRequestID]: Got valid request for signals. For stream: $streamID.")
+                      perRequestActor[(String, GetSignals)](
                       GetSignalsActor.props(databaseReaderActor),
-                      GetSignals(streamID, params)
-                    )
-                  }
-                  else {
-                    HttpResponse(BadRequest, entity = "invalid combination of parameters")
+                      (globalRequestID, GetSignals(streamID, params)))
+                    }
+                    else {
+                      logger.warning(s"[$globalRequestID]: Got invalid request for signals. For stream: $streamID.")
+                      HttpResponse(BadRequest, entity = "invalid combination of parameters")
+                    }
                   }
                 }
               }
-            }
-        } ~
-          pathPrefix("status") {
-            complete {
-              perRequestActor[GetSignals](
+          } ~
+            pathPrefix("status") {
+              complete {
+                logger.info(s"[$globalRequestID]: Got request for status. For stream: $streamID.")
+                perRequestActor[(String, GetSignals)](
                 GetSignalsActor.props(databaseReaderActor),
-                GetSignals(streamID, GetSignalsParams(lastN = Some(1)))
+                (globalRequestID, GetSignals(streamID, GetSignalsParams(lastN = Some(1))))
               )
+              }
             }
-          }
 
-      }
+        }
 
+    }
   }
 
 

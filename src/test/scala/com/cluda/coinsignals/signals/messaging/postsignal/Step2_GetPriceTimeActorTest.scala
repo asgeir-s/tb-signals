@@ -1,5 +1,7 @@
 package com.cluda.coinsignals.signals.messaging.postsignal
 
+import java.util.UUID
+
 import akka.actor.Props
 import akka.testkit.{TestActorRef, TestProbe}
 import com.cluda.coinsignals.signals.messaging.MessagingTest
@@ -12,13 +14,14 @@ class Step2_GetPriceTimeActorTest extends MessagingTest {
   // mocks
   val writeDatabaseActor = TestProbe()
   val respondsActor = TestProbe()
+  def globalRequestID = UUID.randomUUID().toString
 
   val actor = TestActorRef(Props(new Step2_GetPriceTimeActor(writeDatabaseActor.ref)), "getPriceActor")
 
   "when receiving 'Meta' it" should
     "get the price for the exchange(bitstamp), add it to the 'Meta' and send 'Meta' to the 'databaseActor'" in {
-    actor ! Meta(None, "test-id", 1, Some("bitstamp"), None, None, Some("arn"))
-    val theResponds = writeDatabaseActor.expectMsgType[Meta]
+    actor ! (globalRequestID, Meta(None, "test-id", 1, Some("bitstamp"), None, None, Some("arn")))
+    val theResponds = writeDatabaseActor.expectMsgType[(String, Meta)]._2
     assert(theResponds.price.isDefined)
     assert(theResponds.price.get >= 0)
     assert(theResponds.timestamp.isDefined)
@@ -40,8 +43,8 @@ class Step2_GetPriceTimeActorTest extends MessagingTest {
 
   "when receiving 'Meta' with unvalid exchnage it" should
     "send a 'SignalProcessingException' to the respondsActor" in {
-    actor ! Meta(Some(respondsActor.ref), "test-id", 1, Some("lol"), None, None, Some("arn"))
+    actor ! (globalRequestID, Meta(Some(respondsActor.ref), "test-id", 1, Some("lol"), None, None, Some("arn")))
     writeDatabaseActor.expectNoMsg()
-    respondsActor.expectMsgType[SignalProcessingException]
+    respondsActor.expectMsgType[(String, SignalProcessingException)]
   }
 }

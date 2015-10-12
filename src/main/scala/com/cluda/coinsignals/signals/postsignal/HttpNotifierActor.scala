@@ -3,31 +3,33 @@ package com.cluda.coinsignals.signals.postsignal
 import akka.actor.{Actor, ActorLogging}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
+import akka.http.scaladsl.model.headers.RawHeader
 import akka.stream.ActorMaterializer
 import com.cluda.coinsignals.signals.util.HttpUtil
 
 import scala.concurrent.{Future, Promise}
+import spray.json._
+import DefaultJsonProtocol._
 
 /**
  * Created by sogasg on 28/08/15.
  */
 class HttpNotifierActor extends Actor with ActorLogging {
 
-  implicit val executor = context.system.dispatcher
-  implicit val system = context.system
-  implicit val materializer = ActorMaterializer()
+  implicit val ec = context.dispatcher
+  implicit val sy = context.system
+  implicit val am = ActorMaterializer()
 
-  def doPost(httpNotification: HttpNotification): Future[Boolean] = {
-
-    log.info("HttpNotifierActor: doPost: host: " + httpNotification.host + ", path: " + httpNotification.path + ", body: " + httpNotification.body)
+  def doPost(globalRequestID: String, httpNotification: HttpNotification): Future[Boolean] = {
+    log.info(s"[$globalRequestID]: doPost: " + httpNotification)
 
     HttpUtil.request(
-      system,
       HttpMethods.POST,
       false,
       httpNotification.host,
       httpNotification.path,
-      body = httpNotification.body
+      body = httpNotification.body,
+      headers = List(RawHeader("Global-Request-ID", globalRequestID))
     ).map {responds =>
       if(responds.status == StatusCodes.Accepted) {
         true
@@ -51,22 +53,24 @@ class HttpNotifierActor extends Actor with ActorLogging {
   }
 
   override def receive: Receive = {
-    case (httpNotification: HttpNotification, retry: Int) =>
-      log.info("HttpNotifierActor: got httpNotification: " + httpNotification)
-      doPost(httpNotification).map { x =>
+    case (globalRequestID: String, httpNotification: HttpNotification, retry: Int) =>
+      log.info(s"[$globalRequestID]: got httpNotification: " + httpNotification)
+      doPost(globalRequestID, httpNotification).map { x =>
         if (x) {
-          log.info("HttpNotifierActor: signal notification was SUCCESSFUL on the " + retry + "th try.")
+          log.info(s"[$globalRequestID]: signal notification was SUCCESSFUL on the " + retry + "th try.")
         }
-        else if (retry >= 10) {
-          log.error("HttpNotifierActor: signal notification FAILED for the " + retry + "th time. WILL NOT RETRY!!")
+        else if (retry <= 0) {
+          log.error(s"[$globalRequestID]: signal notification FAILED. Noe more retrys. WILL NOT RETRY!!")
         }
         else {
           import scala.concurrent.duration._
-          system.scheduler.scheduleOnce(10 seconds, self, (httpNotification, retry+1))
-          log.warning("HttpNotifierActor: signal notification FAILED. Will retry in 10 secounds for the " + (retry+1) + "th time.")
+          sy.scheduler.scheduleOnce(10 seconds, self, (globalRequestID, httpNotification, retry-1))
+          log.warning(s"[$globalRequestID]: signal notification FAILED. Will retry in 10 secounds. " + (retry-1) + " retrys left.")
         }
       }
   }
 }
 
-case class HttpNotification(host: String, path: String, body: String)
+case class HttpNotification(host: String, path: String, body: String) {
+  override def toString = s"""{ "host": "$host", "path": "$path" + "body": """ + body.parseJson.compactPrint
+}
