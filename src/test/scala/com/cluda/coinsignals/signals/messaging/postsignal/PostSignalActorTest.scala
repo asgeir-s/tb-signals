@@ -21,9 +21,9 @@ class PostSignalActorTest extends MessagingTest {
     // mocks
     val getExchangeActor = TestProbe()
     val parent = TestProbe()
-    val actor = TestActorRef(Props(new PostSignalActor(getExchangeActor.ref)), parent.ref, "postSignalActorTest")
+    val actor = TestActorRef(Props(new PostSignalActor(globalRequestID, getExchangeActor.ref)), parent.ref, "postSignalActorTest")
 
-    actor ! (globalRequestID, Meta(None, "test-id", 1, None, None, None, None))
+    actor ! Meta(None, "test-id", 1, None, None, None, None)
     val newMeta = getExchangeActor.expectMsgType[(String, Meta)]._2
     assert(newMeta.respondsActor.get == actor)
   }
@@ -34,10 +34,12 @@ class PostSignalActorTest extends MessagingTest {
     val getExchangeActor = TestProbe()
     val interface = TestProbe()
 
-    val actor = TestActorRef(Props(new PostSignalActor(getExchangeActor.ref)), "postSignalActorTest2")
-    interface.send(actor, (globalRequestID, Meta(None, "test-id", 1, None, None, None, None))) // become reponder
+    val actor = TestActorRef(Props(new PostSignalActor(globalRequestID, getExchangeActor.ref)), "postSignalActorTest2")
+    interface.send(actor, Meta(None, "test-id", 1, None, None, None, None)) // become reponder
 
-    actor ! (globalRequestID, Seq(TestData.signal1))
+    getExchangeActor.expectMsgType[(String, Meta)]
+
+    actor ! Seq(TestData.signal1)
     val responseParent = interface.expectMsgType[HttpResponse]
     import SignalJsonProtocol._
     import spray.json._
@@ -57,10 +59,10 @@ class PostSignalActorTest extends MessagingTest {
     val getExchangeActor = TestProbe()
     val interface = TestProbe()
 
-    val actor = TestActorRef(Props(new PostSignalActor(getExchangeActor.ref)), "postSignalActorTest3")
-    interface.send(actor, (globalRequestID, Meta(None, "test-id", 1, None, None, None, None))) // become reponder
+    val actor = TestActorRef(Props(new PostSignalActor(globalRequestID, getExchangeActor.ref)), "postSignalActorTest3")
+    interface.send(actor, Meta(None, "test-id", 1, None, None, None, None)) // become reponder
 
-    actor ! (globalRequestID, SignalProcessingException("some error"))
+    actor ! SignalProcessingException("some error")
     val responseParent = interface.expectMsgType[HttpResponse]
 
     // check that the actor killed itself

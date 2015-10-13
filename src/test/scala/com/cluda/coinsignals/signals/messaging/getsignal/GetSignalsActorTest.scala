@@ -17,9 +17,9 @@ class GetSignalsActorTest extends MessagingTest {
     "forward it to the 'databaseReaderActor' and become responder" in {
     val databaseReaderActor = TestProbe()
     val interfaceActor = TestProbe()
-    val actor = TestActorRef(GetSignalsActor.props(databaseReaderActor.ref), "DatabaseReaderActor1")
+    val actor = TestActorRef(GetSignalsActor.props(globalRequestID, databaseReaderActor.ref), "DatabaseReaderActor1")
 
-    interfaceActor.send(actor, (globalRequestID, GetSignals("someStreamId")))
+    interfaceActor.send(actor, GetSignals("someStreamId"))
     val respond = databaseReaderActor.expectMsgType[(String, GetSignals)]._2
     assert(respond.streamID == "someStreamId")
   }
@@ -28,10 +28,10 @@ class GetSignalsActorTest extends MessagingTest {
     "create http responds and send it to the interfaceActor" in {
     val databaseReaderActor = TestProbe()
     val interfaceActor = TestProbe()
-    val actor = TestActorRef(GetSignalsActor.props(databaseReaderActor.ref), "DatabaseReaderActor2")
+    val actor = TestActorRef(GetSignalsActor.props(globalRequestID, databaseReaderActor.ref), "DatabaseReaderActor2")
 
-    interfaceActor.send(actor, (globalRequestID, GetSignals("someStreamId"))) // become responder
-    databaseReaderActor.send(actor, (globalRequestID, TestData.signalSeq))
+    interfaceActor.send(actor, GetSignals("someStreamId")) // become responder
+    databaseReaderActor.send(actor, TestData.signalSeq)
     interfaceActor.expectMsgType[HttpResponse]
 
   }

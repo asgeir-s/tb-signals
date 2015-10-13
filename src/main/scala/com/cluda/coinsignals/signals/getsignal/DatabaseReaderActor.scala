@@ -8,6 +8,7 @@ import com.typesafe.config.ConfigFactory
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcBackend
 import slick.jdbc.JdbcBackend.Database
+import slick.jdbc.meta.MTable
 import slick.lifted.TableQuery
 
 import scala.concurrent.ExecutionContext
@@ -24,80 +25,89 @@ class DatabaseReaderActor extends Actor with ActorLogging {
       val s = sender()
       val signalsTable = TableQuery[SignalTable]((tag: Tag) => new SignalTable(tag, streamID))
 
-      if (!paramseters.hasParameters) {
-        database.run(signalsTable.sortBy(_.id.desc).result).map {
-          case signals: Seq[Signal] =>
-            s ! (globalRequestID, signals)
-        }.recover {
-          case _ =>
-            log.error(s"[$globalRequestID]: Error from database. Probably database for the stream does not exist")
-            s ! (globalRequestID, DatabaseReadException("error from database. Probably database for the stream does not exist"))
-        }
-      }
-      else if (paramseters.isValid) {
-        val query: slick.lifted.Query[SignalTable, Signal, Seq] = {
-          if (paramseters.lastN isDefined) {
-            signalsTable.sortBy(_.id.desc).take(paramseters.lastN.get)
-          }
-          else if (paramseters.fromId isDefined) {
-            if (paramseters.toId isDefined) {
-              signalsTable.filter(x => x.id > paramseters.fromId.get && x.id < paramseters.toId.get).sortBy(_.id.desc)
-            }
-            else {
-              signalsTable.filter(_.id > paramseters.fromId.get).sortBy(_.id.desc)
-            }
-          }
-          else if (paramseters.afterTime isDefined) {
-            if (paramseters.beforeTime isDefined) {
-              //println("afterTime:" + paramseters.afterTime.get + " && beforeTime:" + paramseters.beforeTime.get)
-              signalsTable.filter(x => x.timestamp > paramseters.afterTime.get && x.timestamp < paramseters.beforeTime.get).sortBy(_.id.desc)
-            }
-            else {
-              //println("afterTime:" + paramseters.afterTime.get)
-              signalsTable.filter(_.timestamp > paramseters.afterTime.get).sortBy(_.id.desc)
-            }
-          }
+      database.run(MTable.getTables(streamID)).map { tables =>
+        if (tables.nonEmpty) {
 
-          else if (paramseters.toId isDefined) {
-            signalsTable.filter(x => x.id < paramseters.toId.get).sortBy(_.id.desc)
+          if (!paramseters.hasParameters) {
+            database.run(signalsTable.sortBy(_.id.desc).result).map {
+              case signals: Seq[Signal] =>
+                s !signals
+            }.recover {
+              case _ =>
+                log.error(s"[$globalRequestID]: Error from database. Probably database for the stream does not exist")
+                s ! DatabaseReadException("error from database. Probably database for the stream does not exist")
+            }
           }
+          else if (paramseters.isValid) {
+            val query: slick.lifted.Query[SignalTable, Signal, Seq] = {
+              if (paramseters.lastN isDefined) {
+                signalsTable.sortBy(_.id.desc).take(paramseters.lastN.get)
+              }
+              else if (paramseters.fromId isDefined) {
+                if (paramseters.toId isDefined) {
+                  signalsTable.filter(x => x.id > paramseters.fromId.get && x.id < paramseters.toId.get).sortBy(_.id.desc)
+                }
+                else {
+                  signalsTable.filter(_.id > paramseters.fromId.get).sortBy(_.id.desc)
+                }
+              }
+              else if (paramseters.afterTime isDefined) {
+                if (paramseters.beforeTime isDefined) {
+                  //println("afterTime:" + paramseters.afterTime.get + " && beforeTime:" + paramseters.beforeTime.get)
+                  signalsTable.filter(x => x.timestamp > paramseters.afterTime.get && x.timestamp < paramseters.beforeTime.get).sortBy(_.id.desc)
+                }
+                else {
+                  //println("afterTime:" + paramseters.afterTime.get)
+                  signalsTable.filter(_.timestamp > paramseters.afterTime.get).sortBy(_.id.desc)
+                }
+              }
 
-          else if (paramseters.beforeTime isDefined) {
-            //println("toTime:" + paramseters.beforeTime.get)
-            signalsTable.filter(_.timestamp < paramseters.beforeTime.get).sortBy(_.id.desc)
-          }
-            else if(paramseters.onlyClosed isDefined) {
-            signalsTable.sortBy(_.id.desc)
-          }
-          else {
-            log.error(s"[$globalRequestID]: Valid parameters was defined but dodent match any combination. Error!! Returning no signals.")
-            signalsTable.take(0)
-          }
-        }
+              else if (paramseters.toId isDefined) {
+                signalsTable.filter(x => x.id < paramseters.toId.get).sortBy(_.id.desc)
+              }
 
-        database.run(query.result).map {
-          case signals: Seq[Signal] =>
-            if (paramseters.onlyClosed.isDefined && paramseters.onlyClosed.get) {
-              if (signals.head.signal != 0) {
-                s ! (globalRequestID, signals.drop(1))
+              else if (paramseters.beforeTime isDefined) {
+                //println("toTime:" + paramseters.beforeTime.get)
+                signalsTable.filter(_.timestamp < paramseters.beforeTime.get).sortBy(_.id.desc)
+              }
+              else if (paramseters.onlyClosed isDefined) {
+                signalsTable.sortBy(_.id.desc)
               }
               else {
-                s ! (globalRequestID, signals)
+                log.error(s"[$globalRequestID]: Valid parameters was defined but dodent match any combination. Error!! Returning no signals.")
+                signalsTable.take(0)
               }
             }
-            else {
-              s ! (globalRequestID, signals)
+
+            database.run(query.result).map {
+              case signals: Seq[Signal] =>
+                if (paramseters.onlyClosed.isDefined && paramseters.onlyClosed.get) {
+                  if (signals.head.signal != 0) {
+                    s ! signals.drop(1)
+                  }
+                  else {
+                    s ! signals
+                  }
+                }
+                else {
+                  s ! signals
+                }
+            }.recover {
+              case _ =>
+                log.error(s"[$globalRequestID]: Error from database. Probably database for the stream does not exist")
+                s ! DatabaseReadException("error from database. Probably database for the stream does not exist")
             }
-        }.recover {
-          case _ =>
-            log.error(s"[$globalRequestID]: Error from database. Probably database for the stream does not exist")
-            s ! (globalRequestID, DatabaseReadException("error from database. Probably database for the stream does not exist"))
+          }
+          else {
+            log.error(s"[$globalRequestID]: Invalid combination of parameters: " + paramseters)
+            s ! InalidCombinationOfParametersException("invalid combination of parameters: " + paramseters)
+          }
+        }
+        else {
+          s !  Seq[Signal]()
         }
       }
-      else {
-        log.error(s"[$globalRequestID]: Invalid combination of parameters: " + paramseters)
-        s ! (globalRequestID, InalidCombinationOfParametersException("invalid combination of parameters: " + paramseters))
-      }
+
 
   }
 }

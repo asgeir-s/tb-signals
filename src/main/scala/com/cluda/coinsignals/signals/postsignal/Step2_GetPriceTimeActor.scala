@@ -65,7 +65,7 @@ class Step2_GetPriceTimeActor(writeDatabaseActor: ActorRef) extends Actor with A
       }
       else {
         log.error(s"[$globalRequestID]: could not get price")
-        meta.respondsActor.get ! (globalRequestID, SignalProcessingException(s"[$globalRequestID]: could not get price"))
+        meta.respondsActor.get ! SignalProcessingException(s"[$globalRequestID]: could not get price")
       }
   }
 }

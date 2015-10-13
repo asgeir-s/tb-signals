@@ -47,9 +47,11 @@ class GetSignalsSpec extends TestService {
     }
   }
 
-  it should "responds withe an error when the theire is no stream with the given streamID" in {
+  it should "responds withe an empty array when the their is no stream with the given streamID" in {
     Get("/streams/" + "notexisting" + "/signals").addHeader(globalRequestIDHeader) ~> routes ~> check {
-      status shouldBe NoContent
+      status shouldBe OK
+      assert(responseAs[String]== "[]")
+
     }
   }
 

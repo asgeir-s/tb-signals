@@ -65,8 +65,8 @@ class Step1_StreamInfoActor(getPriceActor: ActorRef) extends Actor with ActorLog
       }.recover {
         case _ =>
           log.error(s"[$globalRequestID]: Cold not get the exchange and aws-sns-arn for the streamID: " + meta.streamID)
-          meta.respondsActor.get ! (globalRequestID, SignalProcessingException(
-            s"[$globalRequestID]: cold not get the exchange and aws-sns-arn for the streamID: " + meta.streamID))
+          meta.respondsActor.get ! SignalProcessingException(
+            s"[$globalRequestID]: cold not get the exchange and aws-sns-arn for the streamID: " + meta.streamID)
       }
   }
 }

@@ -45,7 +45,7 @@ class Step3_WriteDatabaseActor(notificationActor: ActorRef) extends Actor with A
             if (length == 0) {
               log.info(s"[$globalRequestID]: This is the first signal for this stream. Adding to DB. Meta: " + meta.toString)
               prosseccSignals(signalsTable, List(Signal(None, meta.signal, meta.timestamp.get, meta.price.get, 0, 1))).map { newSignalsWithId =>
-                meta.respondsActor.get ! (globalRequestID, newSignalsWithId)
+                meta.respondsActor.get ! newSignalsWithId
                 notificationActor !(globalRequestID, meta.streamID, meta.awsARN.get, newSignalsWithId)
                 log.info(s"[$globalRequestID]: Signal added to DB. And sent to the 'notificationActor'. For stream: " + meta.streamID + ".")
               }.recover {
@@ -59,7 +59,7 @@ class Step3_WriteDatabaseActor(notificationActor: ActorRef) extends Actor with A
                 val newSignals = SignalUtil.newSignals(lastSignal, meta)
                 if (newSignals.nonEmpty) {
                   prosseccSignals(signalsTable, newSignals).map {newSignalsWithId =>
-                    meta.respondsActor.get !(globalRequestID, newSignalsWithId)
+                    meta.respondsActor.get ! newSignalsWithId
                     notificationActor !(globalRequestID, meta.streamID, meta.awsARN.get, newSignalsWithId)
                     log.info(s"[$globalRequestID]: Signals added to DB. And sent to the 'notificationActor'. For stream: " + meta.streamID + ".")
                   }.recover {
@@ -68,7 +68,7 @@ class Step3_WriteDatabaseActor(notificationActor: ActorRef) extends Actor with A
                 }
                 else {
                   log.error(s"[$globalRequestID]: No signals to add. Possibly: position is already taken. Conflict - Duplicate")
-                  meta.respondsActor.get ! (globalRequestID, SignalProcessingException(s"[$globalRequestID]: No signals to add. Possibly: position is already taken. Conflict - Duplicate"))
+                  meta.respondsActor.get ! SignalProcessingException(s"[$globalRequestID]: No signals to add. Possibly: position is already taken. Conflict - Duplicate")
                 }
               }
             }

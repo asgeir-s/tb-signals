@@ -45,6 +45,6 @@ class Step2_GetPriceTimeActorTest extends MessagingTest {
     "send a 'SignalProcessingException' to the respondsActor" in {
     actor ! (globalRequestID, Meta(Some(respondsActor.ref), "test-id", 1, Some("lol"), None, None, Some("arn")))
     writeDatabaseActor.expectNoMsg()
-    respondsActor.expectMsgType[(String, SignalProcessingException)]
+    respondsActor.expectMsgType[SignalProcessingException]
   }
 }

@@ -28,7 +28,7 @@ class Step3_WriteDatabaseActorTest extends MessagingTest {
     "write the signal to the database and return the new signal to the 'respondsActor'" in {
     actor ! (globalRequestID, Meta(Some(respondsActor.ref), testID, 1, Some("bitstamp"), Some(BigDecimal(400)), Some(2999999l), Some("arn")))
     val notificationResponds = notificationActor.expectMsgType[(String, String, String, Seq[Signal])]
-    val theResponds = respondsActor.expectMsgType[(String, Seq[Signal])]._2
+    val theResponds = respondsActor.expectMsgType[Seq[Signal]]
     assert(theResponds.length == 1)
     assert(theResponds.head.id.isDefined)
     assert(theResponds.head.change == BigDecimal(0))
@@ -41,7 +41,7 @@ class Step3_WriteDatabaseActorTest extends MessagingTest {
   "when receiving 'Meta' about a new signal that is a dupicate (same position as last signal) it" should
     "return a 'SignalProcessingException'" in {
     actor ! (globalRequestID, Meta(Some(respondsActor.ref), testID, 1, Some("bitstamp"), Some(BigDecimal(220)), Some(3999999l), Some("arn")))
-    val theResponds = respondsActor.expectMsgType[(String, SignalProcessingException)]._2
+    val theResponds = respondsActor.expectMsgType[SignalProcessingException]
     notificationActor.expectNoMsg()
   }
 
@@ -49,7 +49,7 @@ class Step3_WriteDatabaseActorTest extends MessagingTest {
     "write the signal to the database and return the new signal to the 'respondsActor'. And the change could be set correctly" in {
     actor ! (globalRequestID, Meta(Some(respondsActor.ref), testID, 0, Some("bitstamp"), Some(BigDecimal(800)), Some(2999999l), Some("arn")))
     val notificationResponds = notificationActor.expectMsgType[(String, String, String, Seq[Signal])]
-    val theResponds = respondsActor.expectMsgType[(String, Seq[Signal])]._2
+    val theResponds = respondsActor.expectMsgType[Seq[Signal]]
     assert(theResponds.length == 1)
     assert(theResponds.head.id.isDefined)
     assert(theResponds.head.change == BigDecimal(1))
@@ -64,7 +64,7 @@ class Step3_WriteDatabaseActorTest extends MessagingTest {
     // take LONG
     actor ! (globalRequestID, Meta(Some(respondsActor.ref), testID, 1, Some("bitstamp"), Some(BigDecimal(200)), Some(2999999l), Some("arn")))
     val notificationResponds1 = notificationActor.expectMsgType[(String, String, String, Seq[Signal])]
-    val theResponds1 = respondsActor.expectMsgType[(String, Seq[Signal])]._2
+    val theResponds1 = respondsActor.expectMsgType[Seq[Signal]]
     assert(theResponds1.length == 1)
     assert(theResponds1.head.id.isDefined)
     assert(theResponds1.head.change == BigDecimal(0))
@@ -78,7 +78,7 @@ class Step3_WriteDatabaseActorTest extends MessagingTest {
     // CLOSE it
     actor ! (globalRequestID, Meta(Some(respondsActor.ref), testID, 0, Some("bitstamp"), Some(BigDecimal(100)), Some(2999999l), Some("arn")))
     val notificationResponds2 = notificationActor.expectMsgType[(String, String, String, Seq[Signal])]
-    val theResponds2 = respondsActor.expectMsgType[(String, Seq[Signal])]._2
+    val theResponds2 = respondsActor.expectMsgType[Seq[Signal]]
     assert(theResponds2.length == 1)
     assert(theResponds2.head.id.isDefined)
     assert(theResponds2.head.change == BigDecimal(-0.5))
@@ -93,7 +93,7 @@ class Step3_WriteDatabaseActorTest extends MessagingTest {
     // take LONG
     actor ! (globalRequestID, Meta(Some(respondsActor.ref), testID, 1, Some("bitstamp"), Some(BigDecimal(100)), Some(2999999l), Some("arn")))
     val notificationResponds1 = notificationActor.expectMsgType[(String, String, String, Seq[Signal])]
-    val theResponds1 = respondsActor.expectMsgType[(String, Seq[Signal])]._2
+    val theResponds1 = respondsActor.expectMsgType[Seq[Signal]]
     assert(theResponds1.length == 1)
     assert(theResponds1.head.id.isDefined)
     assert(theResponds1.head.change == BigDecimal(0))
@@ -105,7 +105,7 @@ class Step3_WriteDatabaseActorTest extends MessagingTest {
     // CLOSE it
     actor ! (globalRequestID, Meta(Some(respondsActor.ref), testID, 0, Some("bitstamp"), Some(BigDecimal(150)), Some(2999999l), Some("arn")))
     val notificationResponds2 = notificationActor.expectMsgType[(String, String, String, Seq[Signal])]
-    val theResponds2 = respondsActor.expectMsgType[(String, Seq[Signal])]._2
+    val theResponds2 = respondsActor.expectMsgType[Seq[Signal]]
     assert(theResponds2.length == 1)
     assert(theResponds2.head.id.isDefined)
     assert(theResponds2.head.change == BigDecimal(0.5))
@@ -121,7 +121,7 @@ class Step3_WriteDatabaseActorTest extends MessagingTest {
     // take SHORT
     actor ! (globalRequestID, Meta(Some(respondsActor.ref), testID, -1, Some("bitstamp"), Some(BigDecimal(200)), Some(2999999l), Some("arn")))
     val notificationResponds1 = notificationActor.expectMsgType[(String, String, String, Seq[Signal])]
-    val theResponds1 = respondsActor.expectMsgType[(String, Seq[Signal])]._2
+    val theResponds1 = respondsActor.expectMsgType[Seq[Signal]]
     assert(theResponds1.length == 1)
     assert(theResponds1.head.id.isDefined)
     assert(theResponds1.head.change == BigDecimal(0))
@@ -133,7 +133,7 @@ class Step3_WriteDatabaseActorTest extends MessagingTest {
     // CLOSE it
     actor ! (globalRequestID, Meta(Some(respondsActor.ref), testID, 0, Some("bitstamp"), Some(BigDecimal(100)), Some(2999999l), Some("arn")))
     val notificationResponds2 = notificationActor.expectMsgType[(String, String, String, Seq[Signal])]
-    val theResponds2 = respondsActor.expectMsgType[(String, Seq[Signal])]._2
+    val theResponds2 = respondsActor.expectMsgType[Seq[Signal]]
     assert(theResponds2.length == 1)
     assert(theResponds2.head.id.isDefined)
     assert(theResponds2.head.change == BigDecimal(0.5))
@@ -148,7 +148,7 @@ class Step3_WriteDatabaseActorTest extends MessagingTest {
     // take SHORT
     actor ! (globalRequestID, Meta(Some(respondsActor.ref), testID, -1, Some("bitstamp"), Some(BigDecimal(200)), Some(2999999l), Some("arn")))
     val notificationResponds1 = notificationActor.expectMsgType[(String, String, String, Seq[Signal])]
-    val theResponds1 = respondsActor.expectMsgType[(String, Seq[Signal])]._2
+    val theResponds1 = respondsActor.expectMsgType[Seq[Signal]]
     assert(theResponds1.length == 1)
     assert(theResponds1.head.id.isDefined)
     assert(theResponds1.head.change == BigDecimal(0))
@@ -160,7 +160,7 @@ class Step3_WriteDatabaseActorTest extends MessagingTest {
     // CLOSE it
     actor ! (globalRequestID, Meta(Some(respondsActor.ref), testID, 0, Some("bitstamp"), Some(BigDecimal(400)), Some(2999999l), Some("arn")))
     val notificationResponds2 = notificationActor.expectMsgType[(String, String, String, Seq[Signal])]
-    val theResponds2 = respondsActor.expectMsgType[(String, Seq[Signal])]._2
+    val theResponds2 = respondsActor.expectMsgType[Seq[Signal]]
     assert(theResponds2.length == 1)
     assert(theResponds2.head.id.isDefined)
     assert(theResponds2.head.change == BigDecimal(-1))
@@ -175,7 +175,7 @@ class Step3_WriteDatabaseActorTest extends MessagingTest {
     // take LONG
     actor ! (globalRequestID, Meta(Some(respondsActor.ref), testID, 1, Some("bitstamp"), Some(BigDecimal(200)), Some(2999999l), Some("arn")))
     val notificationResponds1 = notificationActor.expectMsgType[(String, String, String, Seq[Signal])]
-    val theResponds1 = respondsActor.expectMsgType[(String, Seq[Signal])]._2
+    val theResponds1 = respondsActor.expectMsgType[Seq[Signal]]
     assert(theResponds1.length == 1)
     assert(theResponds1.head.id.isDefined)
     assert(theResponds1.head.change == BigDecimal(0))
@@ -187,7 +187,7 @@ class Step3_WriteDatabaseActorTest extends MessagingTest {
     // take SHORT
     actor ! (globalRequestID, Meta(Some(respondsActor.ref), testID, -1, Some("bitstamp"), Some(BigDecimal(400)), Some(2999999l), Some("arn")))
     val notificationResponds2 = notificationActor.expectMsgType[(String, String, String, Seq[Signal])]
-    val theResponds2 = respondsActor.expectMsgType[(String, Seq[Signal])]._2
+    val theResponds2 = respondsActor.expectMsgType[Seq[Signal]]
     assert(theResponds2.length == 2)
     assert(theResponds2(0).id.isDefined)
     assert(theResponds2(0).change == BigDecimal(0))
@@ -200,7 +200,7 @@ class Step3_WriteDatabaseActorTest extends MessagingTest {
 
     // CLOSE it
     actor ! (globalRequestID, Meta(Some(respondsActor.ref), testID, 0, Some("bitstamp"), Some(BigDecimal(100)), Some(2999999l), Some("arn")))
-    respondsActor.expectMsgType[(String, Seq[Signal])]._2
+    respondsActor.expectMsgType[Seq[Signal]]
     notificationActor.expectMsgType[(String, String, String, Seq[Signal])]
   }
 
@@ -209,7 +209,7 @@ class Step3_WriteDatabaseActorTest extends MessagingTest {
     // take SHORT
     actor ! (globalRequestID, Meta(Some(respondsActor.ref), testID, -1, Some("bitstamp"), Some(BigDecimal(200)), Some(2999999l), Some("arn")))
     val notificationResponds1 = notificationActor.expectMsgType[(String, String, String, Seq[Signal])]
-    val theResponds1 = respondsActor.expectMsgType[(String, Seq[Signal])]._2
+    val theResponds1 = respondsActor.expectMsgType[Seq[Signal]]
     assert(theResponds1.length == 1)
     assert(theResponds1.head.id.isDefined)
     assert(theResponds1.head.change == BigDecimal(0))
@@ -221,7 +221,7 @@ class Step3_WriteDatabaseActorTest extends MessagingTest {
     // take LONG
     actor ! (globalRequestID, Meta(Some(respondsActor.ref), testID, 1, Some("bitstamp"), Some(BigDecimal(400)), Some(2999999l), Some("arn")))
     val notificationResponds2 = notificationActor.expectMsgType[(String, String, String, Seq[Signal])]
-    val theResponds2 = respondsActor.expectMsgType[(String, Seq[Signal])]._2
+    val theResponds2 = respondsActor.expectMsgType[Seq[Signal]]
     assert(theResponds2.length == 2)
     assert(theResponds2(0).id.isDefined)
     assert(theResponds2(0).change == BigDecimal(0))
@@ -234,7 +234,7 @@ class Step3_WriteDatabaseActorTest extends MessagingTest {
 
     // CLOSE it
     actor ! (globalRequestID, Meta(Some(respondsActor.ref), testID, 0, Some("bitstamp"), Some(BigDecimal(100)), Some(2999999l), Some("arn")))
-    respondsActor.expectMsgType[(String, Seq[Signal])]._2
+    respondsActor.expectMsgType[Seq[Signal]]
     notificationActor.expectMsgType[(String, String, String, Seq[Signal])]
   }
 

@@ -69,9 +69,10 @@ trait Service {
 
   val routes = {
     headerValueByName("Global-Request-ID") { globalRequestID =>
+
       pathPrefix("ping") {
         complete {
-          logger.info(s"[$globalRequestID]: " + "Answering ping request")
+          logger.info(s"[$globalRequestID]: Answering ping request")
           HttpResponse(OK, entity = Map("runID" -> runID.toString, "globalRequestID" -> globalRequestID).toJson.prettyPrint)
         }
       } ~
@@ -84,9 +85,9 @@ trait Service {
                   complete {
                     if (List(-1, 0, 1).contains(signal)) {
                       logger.info(s"[$globalRequestID]: Got new signal: $signal. For stream: $streamID.")
-                      perRequestActor[(String, Meta)](
-                      PostSignalActor.props(getExchangeActor),
-                      (globalRequestID, Meta(None, streamID, signal, None, None, None, None)))
+                      perRequestActor[Meta](
+                      PostSignalActor.props(globalRequestID, getExchangeActor),
+                      Meta(None, streamID, signal, None, None, None, None))
                     }
                     else {
                       logger.error(s"[$globalRequestID]: Got unknown signal: $signal. Returning 'BadRequest'. For stream: $streamID.")
@@ -105,9 +106,9 @@ trait Service {
                   complete {
                     if (params.isValid) {
                       logger.info(s"[$globalRequestID]: Got valid request for signals. For stream: $streamID.")
-                      perRequestActor[(String, GetSignals)](
-                      GetSignalsActor.props(databaseReaderActor),
-                      (globalRequestID, GetSignals(streamID, params)))
+                      perRequestActor[GetSignals](
+                      GetSignalsActor.props(globalRequestID, databaseReaderActor),
+                      GetSignals(streamID, params))
                     }
                     else {
                       logger.warning(s"[$globalRequestID]: Got invalid request for signals. For stream: $streamID.")
@@ -120,9 +121,9 @@ trait Service {
             pathPrefix("status") {
               complete {
                 logger.info(s"[$globalRequestID]: Got request for status. For stream: $streamID.")
-                perRequestActor[(String, GetSignals)](
-                GetSignalsActor.props(databaseReaderActor),
-                (globalRequestID, GetSignals(streamID, GetSignalsParams(lastN = Some(1))))
+                perRequestActor[GetSignals](
+                GetSignalsActor.props(globalRequestID, databaseReaderActor),
+                GetSignals(streamID, GetSignalsParams(lastN = Some(1)))
               )
               }
             }

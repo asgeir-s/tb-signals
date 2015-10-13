@@ -10,10 +10,10 @@ import SignalJsonProtocol._
 import spray.json._
 
 
-class PostSignalActor(getExchangeActor: ActorRef) extends Actor with ActorLogging {
+class PostSignalActor(globalRequestID: String, getExchangeActor: ActorRef) extends Actor with ActorLogging {
   log.info("PostSignalActor started on address " + self)
   override def receive: Receive = {
-    case (globalRequestID: String, meta: Meta) =>
+    case meta: Meta =>
       log.info(s"[$globalRequestID]: Got 'Meta' object -> sends it to getExchangeActor and waits for responds")
       getExchangeActor ! (globalRequestID, MetaUtil.setRespondsActor(meta, self))
       context.become(responder(sender()))
@@ -21,17 +21,17 @@ class PostSignalActor(getExchangeActor: ActorRef) extends Actor with ActorLoggin
 
   def responder(respondTo: ActorRef): Receive = {
 
-    case (globalRequestID: String, signals: Seq[Signal]) =>
+    case signals: Seq[Signal] =>
       log.info(s"[$globalRequestID]: Got signal(s) back: " + signals)
       respondTo ! HttpResponse(OK, entity = signals.map(_.toJson).toJson.prettyPrint)
       self ! PoisonPill
 
-    case (globalRequestID: String, e: SignalProcessingException) if e.reason.contains("Conflict") =>
+    case e: SignalProcessingException if e.reason.contains("Conflict") =>
       log.error(s"[$globalRequestID]: Got SignalProcessingException: " + e.reason)
       respondTo ! HttpResponse(Conflict, entity = "duplicate")
       self ! PoisonPill
 
-    case (globalRequestID: String, e: SignalProcessingException) =>
+    case e: SignalProcessingException =>
       log.error(s"[$globalRequestID]: Got SignalProcessingException: " + e.reason)
       if(e.reason.contains("cold not get the exchange")) {
         respondTo ! HttpResponse(NotFound, entity = "no stream with that ID")
@@ -44,5 +44,5 @@ class PostSignalActor(getExchangeActor: ActorRef) extends Actor with ActorLoggin
 }
 
 object PostSignalActor {
-  def props(getExchangeActor: ActorRef): Props = Props(new PostSignalActor(getExchangeActor))
+  def props(globalRequestID: String, getExchangeActor: ActorRef): Props = Props(new PostSignalActor(globalRequestID, getExchangeActor))
 }
