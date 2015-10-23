@@ -14,11 +14,18 @@ class NotifyActor(httpNotifierActor: ActorRef) extends Actor with ActorLogging {
   val streamServiceHost = config.getString("microservices.streams")
   val emailNotifyServiceHost = config.getString("microservices.email-notify")
 
-  //create a new SNS client and set endpoint
-  private val credentials = new BasicAWSCredentials(config.getString("aws.accessKeyId"), config.getString("aws.secretAccessKey"))
-  private val snsClient: AmazonSNSClient = new AmazonSNSClient(credentials)
-  snsClient.setRegion(Region.getRegion(Regions.US_WEST_2))
+  private val awsAccessKeyId = config.getString("aws.accessKeyId")
+  private val awsSecretAccessKey = config.getString("aws.secretAccessKey")
 
+  private val snsClient: AmazonSNSClient =
+    if(awsAccessKeyId == "none" || awsSecretAccessKey == "none"){
+      new AmazonSNSClient()
+    }
+    else {
+      new AmazonSNSClient(new BasicAWSCredentials(awsAccessKeyId, awsSecretAccessKey))
+    }
+
+  snsClient.setRegion(Region.getRegion(Regions.fromName(config.getString("aws.sns.region"))))
 
   override def receive: Receive = {
     case (globalRequestID: String, streamID: String, arn: String, signals: Seq[Signal]) =>

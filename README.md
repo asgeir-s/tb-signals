@@ -5,17 +5,20 @@ This requires Java Cryptography Extension (JCE) Unlimited Strength to run.
 Error: ava.security.InvalidKeyException: Illegal key size or default parameters means JCE is missing.
 
 ## Interface
-	POST: /streams/'streamID'/signals 	{'-1,0 or 1'}
-	GET:  /streams/'streamID'/signals? (optional URL-params: fromId, toId, afterTime, beforeTime and lastN (see combinations at the bottom of this page))
-	GET:  /streams/'streamID'/status
+	POST: /streams/'streamID'/signals 	{'-1,0 or 1'} => the signal
+	GET:  /streams/'streamID'/signals? (optional URL-params: fromId, toId, afterTime, beforeTime and lastN (see combinations at the bottom of this page)) => all signals
+	GET:  /streams/'streamID'/status => last signal
 	
 ## Environment Variables
-	STREAMS_SERVICE_ADDRESS (default 'none')
-	STREAMS_SERVICE_PORT (default '80')
 	AWS_ACCESS_KEY_ID (default 'none')
 	AWS_SECRET_KEY (default 'none')
-	LOG_LEVEL (default 'DEBUG')
+	AWS_SNS_REGION (default 'none')
+
 	EMAIL_NOTIFY_SERVICE_ADDRESS (default 'none')
+	STREAMS_SERVICE_ADDRESS (default 'none')
+	STREAMS_SERVICE_PORT (default '80')
+
+	LOG_LEVEL (default 'DEBUG')
 	
 	optional(initialized for testing and automatically provided by AWS):
 	RDS_HOSTNAME
@@ -25,11 +28,12 @@ Error: ava.security.InvalidKeyException: Illegal key size or default parameters 
 	RDS_PASSWORD
 	
 ### Test parameters
-	LOG_LEVEL=DEBUG
-	AWS_SECRET_KEY=P278leit/4LMesq06ZXydphMJFGkhHfDroAym+bX
-	AWS_ACCESS_KEY_ID=AKIAJRRRJ47YBGWBQ57A
-	STREAMS_SERVICE_PORT=80
-	STREAMS_SERVICE_ADDRESS=cs-streams-staging.elasticbeanstalk.com
+	AWS_SNS_REGION=us-west-2
+	AWS_SECRET_KEY=ouE/kqmd9kONVt22UeY++cy7ET95JySkhiXx1ao4
+	AWS_ACCESS_KEY_ID=AKIAJOQURQWOGMHW4YGA
+
+    EMAIL_NOTIFY_SERVICE_ADDRESS=cs-email-notify-staging.elasticbeanstalk.com
+    STREAMS_SERVICE_ADDRESS=cs-streams-staging.elasticbeanstalk.com
 
 ## OSX Set Up
 ##### Docker
