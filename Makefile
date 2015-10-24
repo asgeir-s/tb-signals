@@ -15,12 +15,12 @@ build:
 	docker build -t tradersbit/signals docker/
 
 deploy-s: build
-	cd docker; eb deploy cs-signals-staging -r us-west-2;
+	cd docker; eb deploy tb-staging-signals -r us-west-2;
 
 test-s-s:
 
 deploy-p: build
-	cd docker; eb deploy cs-signals -r us-east-1;
+	cd docker; eb deploy tb-signals -r us-east-1;
 
 setup-db:
 	psql -p 5432 -c "create database tradersbit;"
