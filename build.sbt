@@ -14,7 +14,7 @@ assemblyJarName in assembly := "signals.jar"
 
 assemblyOutputPath in assembly := file("docker/signals.jar")
 
-mainClass in assembly := Some("com.cluda.coinsignals.signals.Boot")
+mainClass in assembly := Some("com.cluda.tradersbit.signals.Boot")
 
 resolvers += "sonatype-oss-snapshot" at "https://oss.sonatype.org/content/repositories/snapshots" // for xchange snapshots
 

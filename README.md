@@ -1,5 +1,5 @@
 # Signals Microservice
-Microservice used in the coinsignals project.
+Microservice used in the tradersbit project.
 
 This requires Java Cryptography Extension (JCE) Unlimited Strength to run.
 Error: ava.security.InvalidKeyException: Illegal key size or default parameters means JCE is missing.
