@@ -4,7 +4,7 @@ SHA1=$1
 
 cd docker
 # Create new Elastic Beanstalk version
-EB_BUCKET=tradersbit
+EB_BUCKET=tradersbit-staging
 FOLDER=signals-app
 SERVICE_NAME=signals
 APPLICATION_NAME=tradersbit
