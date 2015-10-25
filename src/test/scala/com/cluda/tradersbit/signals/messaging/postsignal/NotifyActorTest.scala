@@ -21,8 +21,19 @@ class NotifyActorTest extends MessagingTest {
   val credentials = new BasicAWSCredentials(config.getString("aws.accessKeyId"), config.getString("aws.secretAccessKey"))
 
   //create a new SNS client and set endpoint
-  val snsClient: AmazonSNSClient = new AmazonSNSClient(credentials)
-  snsClient.setRegion(Region.getRegion(Regions.US_WEST_2))
+  private val awsAccessKeyId = config.getString("aws.accessKeyId")
+  private val awsSecretAccessKey = config.getString("aws.secretAccessKey")
+
+  private val snsClient: AmazonSNSClient =
+    if(awsAccessKeyId == "none" || awsSecretAccessKey == "none"){
+      new AmazonSNSClient()
+    }
+    else {
+      new AmazonSNSClient(new BasicAWSCredentials(awsAccessKeyId, awsSecretAccessKey))
+    }
+
+  snsClient.setRegion(Region.getRegion(Regions.fromName(config.getString("aws.sns.region"))))
+
 
   //create a new SNS topic
   val createTopicRequest: CreateTopicRequest = new CreateTopicRequest("notifyActorTest")
