@@ -29,11 +29,11 @@ Error: ava.security.InvalidKeyException: Illegal key size or default parameters 
 	
 ### Test parameters
 	AWS_SNS_REGION=us-west-2
-	AWS_SECRET_KEY=ouE/kqmd9kONVt22UeY++cy7ET95JySkhiXx1ao4
-	AWS_ACCESS_KEY_ID=AKIAJOQURQWOGMHW4YGA
-
-    EMAIL_NOTIFY_SERVICE_ADDRESS=cs-email-notify-staging.elasticbeanstalk.com
-    STREAMS_SERVICE_ADDRESS=cs-streams-staging.elasticbeanstalk.com
+	EMAIL_NOTIFY_SERVICE_ADDRESS=tb-staging-notify-email.elasticbeanstalk.com
+	LOG_LEVEL=DEBUG
+	AWS_SECRET_KEY=q9/igUKZHmIarMVA8pjGkkd33/XTqHcjXZicO8Kp
+	AWS_ACCESS_KEY_ID=AKIAJTDJWSYFWGUK5YOQ
+	STREAMS_SERVICE_ADDRESS=tb-staging-streams.elasticbeanstalk.com
 
 ## OSX Set Up
 ##### Docker
