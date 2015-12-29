@@ -14,9 +14,9 @@ Error: ava.security.InvalidKeyException: Illegal key size or default parameters 
 	AWS_SECRET_KEY (default 'none')
 	AWS_SNS_REGION (default 'none')
 
-	EMAIL_NOTIFY_SERVICE_ADDRESS (default 'none')
 	STREAMS_SERVICE_ADDRESS (default 'none')
 	STREAMS_SERVICE_PORT (default '80')
+	SERVICE_APIKEY (default 'none')
 
 	LOG_LEVEL (default 'DEBUG')
 	
@@ -28,8 +28,8 @@ Error: ava.security.InvalidKeyException: Illegal key size or default parameters 
 	RDS_PASSWORD
 	
 ### Test parameters
+    SERVICE_APIKEY=secret
 	AWS_SNS_REGION=us-west-2
-	EMAIL_NOTIFY_SERVICE_ADDRESS=tb-staging-notify-email.elasticbeanstalk.com
 	LOG_LEVEL=DEBUG
 	AWS_SECRET_KEY=q9/igUKZHmIarMVA8pjGkkd33/XTqHcjXZicO8Kp
 	AWS_ACCESS_KEY_ID=AKIAJTDJWSYFWGUK5YOQ

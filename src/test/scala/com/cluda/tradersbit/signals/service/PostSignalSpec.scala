@@ -12,19 +12,20 @@ import com.cluda.tradersbit.signals.model.{Signal, SignalJsonProtocol}
 class PostSignalSpec extends TestService {
   val streamID = config.getString("testSignalStream.id")
   def globalRequestIDHeader() = RawHeader("Global-Request-ID", UUID.randomUUID().toString)
+  val authorizationHeader = RawHeader("Authorization", "apikey secret")
 
   override def beforeAll(): Unit = {
     DatabaseUtilBlockingForTests.dropTableIfItExists(streamID, system.dispatcher)
   }
 
   it should "prohibit duplicate" in {
-    Post("/streams/" + streamID + "/signals", "0").addHeader(globalRequestIDHeader) ~> routes ~> check {
+    Post("/streams/" + streamID + "/signals", "0").addHeader(authorizationHeader).addHeader(globalRequestIDHeader) ~> routes ~> check {
       val signals = responseAs[String]
     }
   }
 
   it should "responds withe the written signal (with id, price, timestamp etc.)" in {
-    Post("/streams/" + streamID + "/signals", "1").addHeader(globalRequestIDHeader) ~> routes ~> check {
+    Post("/streams/" + streamID + "/signals", "1").addHeader(authorizationHeader).addHeader(globalRequestIDHeader) ~> routes ~> check {
       status shouldBe OK
       import SignalJsonProtocol._
       import spray.json._
@@ -39,7 +40,7 @@ class PostSignalSpec extends TestService {
   }
 
   it should "responds with the written signals SHORT (with id, price, timestamp etc.)" in {
-    Post("/streams/" + streamID + "/signals", "-1").addHeader(globalRequestIDHeader) ~> routes ~> check {
+    Post("/streams/" + streamID + "/signals", "-1").addHeader(authorizationHeader).addHeader(globalRequestIDHeader) ~> routes ~> check {
       status shouldBe OK
       import SignalJsonProtocol._
       import spray.json._
@@ -59,7 +60,7 @@ class PostSignalSpec extends TestService {
   }
 
   it should "responds with the written signal CLOSE (with id, price, timestamp etc.)" in {
-    Post("/streams/" + streamID + "/signals", "0").addHeader(globalRequestIDHeader) ~> routes ~> check {
+    Post("/streams/" + streamID + "/signals", "0").addHeader(authorizationHeader).addHeader(globalRequestIDHeader) ~> routes ~> check {
       status shouldBe OK
       import SignalJsonProtocol._
       import spray.json._
@@ -74,7 +75,7 @@ class PostSignalSpec extends TestService {
   }
 
   it should "responds with status 'Conflict' (when the sendt signal is the same as the last signal)" in {
-    Post("/streams/" + streamID + "/signals", "0").addHeader(globalRequestIDHeader) ~> routes ~> check {
+    Post("/streams/" + streamID + "/signals", "0").addHeader(authorizationHeader).addHeader(globalRequestIDHeader) ~> routes ~> check {
       status shouldBe Conflict
       val error = responseAs[String]
       assert(error.contains("duplicate"))
@@ -83,7 +84,7 @@ class PostSignalSpec extends TestService {
 
 
   it should "responds withe an error when the stream with the provieded ID does not exist in the 'Stream Info Service'" in {
-    Post("/streams/" + "thisisnotreal" + "/signals", "0").addHeader(globalRequestIDHeader) ~> routes ~> check {
+    Post("/streams/" + "thisisnotreal" + "/signals", "0").addHeader(authorizationHeader).addHeader(globalRequestIDHeader) ~> routes ~> check {
       status shouldBe NotFound
     }
   }
