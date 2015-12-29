@@ -29,10 +29,11 @@ class Step1_StreamInfoActor(getPriceActor: ActorRef) extends Actor with ActorLog
   val config = ConfigFactory.load()
   val streamInfoHost = config.getString("microservices.streams")
   val streamInfoPort = config.getInt("microservices.streamsPort")
+  private val authorizationHeader = RawHeader("Authorization", "apikey " + config.getString("microservices.streamsApiKey"))
 
   def doGet(globalRequestID: String, host: String, path: String, port: Int = streamInfoPort): Future[HttpResponse] = {
     val conn = Http().outgoingConnection(host, port)
-    val request = HttpRequest(GET, uri = path, headers = List(RawHeader("Global-Request-ID", globalRequestID)))
+    val request = HttpRequest(GET, uri = path, headers = List(RawHeader("Global-Request-ID", globalRequestID), authorizationHeader))
     Source.single(request).via(conn).runWith(Sink.head[HttpResponse])
   }
 

@@ -29,7 +29,7 @@ class HttpNotifierActor extends Actor with ActorLogging {
       httpNotification.host,
       httpNotification.path,
       body = httpNotification.body,
-      headers = List(RawHeader("Global-Request-ID", globalRequestID))
+      headers = List(RawHeader("Global-Request-ID", globalRequestID), RawHeader("Authorization", "apikey " + httpNotification.apiKey))
     ).map {responds =>
       if(responds.status == StatusCodes.Accepted) {
         true
@@ -71,6 +71,6 @@ class HttpNotifierActor extends Actor with ActorLogging {
   }
 }
 
-case class HttpNotification(host: String, path: String, body: String) {
+case class HttpNotification(host: String, path: String, body: String, apiKey: String) {
   override def toString = s"""{ "host": "$host", "path": "$path" + "body": """ + body.parseJson.compactPrint
 }
