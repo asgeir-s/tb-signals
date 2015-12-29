@@ -13,7 +13,6 @@ class NotifyActor(httpNotifierActor: ActorRef) extends Actor with ActorLogging {
 
   private val config = ConfigFactory.load()
   val streamServiceHost = config.getString("microservices.streams")
-  val emailNotifyServiceHost = config.getString("microservices.email-notify")
 
   private val awsAccessKeyId = config.getString("aws.accessKeyId")
   private val awsSecretAccessKey = config.getString("aws.secretAccessKey")
@@ -44,8 +43,6 @@ class NotifyActor(httpNotifierActor: ActorRef) extends Actor with ActorLogging {
       log.info(s"[$globalRequestID]: Published signals to SNS. MessageId: " + publishResult.getMessageId)
 
       httpNotifierActor ! (globalRequestID, HttpNotification(streamServiceHost, "/streams/" + streamID + "/signals", signalsString), 3)
-      httpNotifierActor ! (globalRequestID, HttpNotification(emailNotifyServiceHost, "/streams/" + streamID + "/signals", signalsString), 3)
-
   }
 }
 

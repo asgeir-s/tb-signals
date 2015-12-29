@@ -23,6 +23,6 @@ class Step1_StreamInfoActorTest extends MessagingTest {
 
     actor ! (globalRequestID, Meta(None, streamID, 1, None, None, None, None))
     val theResponds = getPriceActor.expectMsgType[(String, Meta)]._2
-    assert(theResponds.exchange.get == "bitstamp")
+    assert(theResponds.exchange.get == "bitfinex")
   }
 }
