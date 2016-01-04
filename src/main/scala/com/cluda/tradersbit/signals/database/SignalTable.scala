@@ -19,6 +19,10 @@ class SignalTable(tag: Tag, streamId: String) extends Table[Signal](tag, streamI
 
   def value = column[BigDecimal]("value", O.SqlType(dbBigDecimalType))
 
+  def changeInclFee = column[BigDecimal]("changeInclFee", O.SqlType(dbBigDecimalType)) // new
+
+  def valueInclFee = column[BigDecimal]("valueInclFee", O.SqlType(dbBigDecimalType)) // new
+
   // Every table needs a * projection with the same type as the table's type parameter
-  def * = (id.?, signal, timestamp, price, change, value) <>(Signal.tupled, Signal.unapply)
+  def * = (id.?, signal, timestamp, price, change, value, changeInclFee, valueInclFee) <>(Signal.tupled, Signal.unapply)
 }

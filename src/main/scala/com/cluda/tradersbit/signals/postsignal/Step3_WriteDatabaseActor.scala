@@ -45,7 +45,7 @@ class Step3_WriteDatabaseActor(notificationActor: ActorRef) extends Actor with A
           database.run(signalsTable.length.result).map { length =>
             if (length == 0) {
               log.info(s"[$globalRequestID]: This is the first signal for this stream. Adding to DB. Meta: " + meta.toString)
-              prosseccSignals(signalsTable, List(Signal(None, meta.signal, meta.timestamp.get, meta.price.get, 0, 1))).map { newSignalsWithId =>
+              prosseccSignals(signalsTable, List(Signal(None, meta.signal, meta.timestamp.get, meta.price.get, 0, 1, 0, 1))).map { newSignalsWithId =>
                 meta.respondsActor.get ! newSignalsWithId
                 notificationActor !(globalRequestID, meta.streamID, meta.awsARN.get, newSignalsWithId)
                 log.info(s"[$globalRequestID]: Signal added to DB. And sent to the 'notificationActor'. For stream: " + meta.streamID + ".")
