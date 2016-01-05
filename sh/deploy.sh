@@ -9,7 +9,7 @@ FOLDER=signals-app
 SERVICE_NAME=signals
 APPLICATION_NAME=tradersbit
 
-zip $CIRCLE_ARTIFACTS/$SERVICE_NAME Dockerfile Dockerrun.aws.json $SERVICE_NAME.jar .ebextensions/* .elasticbeanstalk/*
+zip $CIRCLE_ARTIFACTS/$SERVICE_NAME Dockerfile Dockerrun.aws.json $SERVICE_NAME.jar .elasticbeanstalk/* .ebextensions/cwl-* .ebextensions/eb-*
 
 aws s3 cp $CIRCLE_ARTIFACTS/$SERVICE_NAME.zip s3://$EB_BUCKET/$FOLDER/$SERVICE_NAME-$SHA1.zip
 aws elasticbeanstalk create-application-version --application-name $APPLICATION_NAME --version-label $SHA1 --source-bundle S3Bucket=$EB_BUCKET,S3Key=$FOLDER/$SERVICE_NAME-$SHA1.zip
