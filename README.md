@@ -14,6 +14,7 @@ Error: ava.security.InvalidKeyException: Illegal key size or default parameters 
 	AWS_SECRET_KEY (default 'none')
 	AWS_SNS_REGION (default 'none')
 
+    MICROSERVICES_HTTPS
 	STREAMS_SERVICE_ADDRESS (default 'none')
 	STREAMS_SERVICE_PORT (default '80')
 	SERVICE_APIKEY (default 'none')
@@ -28,6 +29,7 @@ Error: ava.security.InvalidKeyException: Illegal key size or default parameters 
 	RDS_PASSWORD
 	
 ### Test parameters
+    MICROSERVICES_HTTPS=false
     SERVICE_APIKEY=secret
 	AWS_SNS_REGION=us-west-2
 	LOG_LEVEL=DEBUG

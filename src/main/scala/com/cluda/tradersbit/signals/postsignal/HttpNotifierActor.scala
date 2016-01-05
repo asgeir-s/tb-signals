@@ -25,7 +25,7 @@ class HttpNotifierActor extends Actor with ActorLogging {
 
     HttpUtil.request(
       HttpMethods.POST,
-      false,
+      httpNotification.https,
       httpNotification.host,
       httpNotification.path,
       body = httpNotification.body,
@@ -71,6 +71,6 @@ class HttpNotifierActor extends Actor with ActorLogging {
   }
 }
 
-case class HttpNotification(host: String, path: String, body: String, apiKey: String) {
-  override def toString = s"""{ "host": "$host", "path": "$path" + "body": """ + body.parseJson.compactPrint
+case class HttpNotification(host: String, path: String, body: String, apiKey: String, https: Boolean) {
+  override def toString = s"""{ "host": "$host", "path": "$path", "https": "$https", "body": """ + body.parseJson.compactPrint
 }

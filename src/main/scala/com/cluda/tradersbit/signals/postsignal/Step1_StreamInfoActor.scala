@@ -4,13 +4,13 @@ import akka.actor._
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.HttpMethods._
 import akka.http.scaladsl.model.headers.RawHeader
-import akka.http.scaladsl.model.{StatusCodes, HttpRequest, HttpResponse}
+import akka.http.scaladsl.model.{HttpMethods, StatusCodes, HttpRequest, HttpResponse}
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Sink, Source}
 import com.cluda.tradersbit.signals.model.Meta
 import com.cluda.tradersbit.signals.protocoll.SignalProcessingException
-import com.cluda.tradersbit.signals.util.MetaUtil
+import com.cluda.tradersbit.signals.util.{HttpUtil, MetaUtil}
 import com.typesafe.config.ConfigFactory
 import spray.json._
 
@@ -29,12 +29,17 @@ class Step1_StreamInfoActor(getPriceActor: ActorRef) extends Actor with ActorLog
   val config = ConfigFactory.load()
   val streamInfoHost = config.getString("microservices.streams")
   val streamInfoPort = config.getInt("microservices.streamsPort")
+  private val https = config.getBoolean("microservices.https")
   private val authorizationHeader = RawHeader("Authorization", "apikey " + config.getString("microservices.streamsApiKey"))
 
   def doGet(globalRequestID: String, host: String, path: String, port: Int = streamInfoPort): Future[HttpResponse] = {
-    val conn = Http().outgoingConnection(host, port)
-    val request = HttpRequest(GET, uri = path, headers = List(RawHeader("Global-Request-ID", globalRequestID), authorizationHeader))
-    Source.single(request).via(conn).runWith(Sink.head[HttpResponse])
+    HttpUtil.request(
+      HttpMethods.GET,
+      https,
+      host,
+      path,
+      headers = List(RawHeader("Global-Request-ID", globalRequestID), authorizationHeader)
+    )
   }
 
   def getExchangeAndArn(globalRequestID: String, streamID: String): Future[(String, String)] = {
