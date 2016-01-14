@@ -55,7 +55,7 @@ class Step1_StreamInfoActor(getPriceActor: ActorRef) extends Actor with ActorLog
           val exchange = json.getFields("exchange").head.toString()
           val arn = json.fields.get("streamPrivate").get.asJsObject
             .getFields("topicArn").head.toString()
-          val streamName = json.getFields("name").head.toString()
+          val streamName = json.getFields("name").head.toString().replace("\"", "")
           log.info(s"[$globalRequestID]: Got responds from stream-info: that exchange: " + exchange + ", topicArn: " + arn)
           promise.success((exchange, arn, streamName))
         }

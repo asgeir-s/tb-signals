@@ -35,6 +35,8 @@ class NotifyActor(httpNotifierActor: ActorRef) extends Actor with ActorLogging {
       import SignalJsonProtocol._
       import spray.json._
 
+      println("streamName raw:" + streamName)
+
       val signalsString = signals.map(_.toJson).toJson.prettyPrint
       val notificationJson = Map("streamName"-> streamName.toJson, "streamId" -> streamID.toJson,"signals" -> signals.map(_.toJson).toJson).toJson.prettyPrint
 
