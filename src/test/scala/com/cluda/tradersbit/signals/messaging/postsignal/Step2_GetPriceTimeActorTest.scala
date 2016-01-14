@@ -20,7 +20,7 @@ class Step2_GetPriceTimeActorTest extends MessagingTest {
 
   "when receiving 'Meta' it" should
     "get the price for the exchange(bitstamp), add it to the 'Meta' and send 'Meta' to the 'databaseActor'" in {
-    actor ! (globalRequestID, Meta(None, "test-id", 1, Some("bitstamp"), None, None, Some("arn")))
+    actor ! (globalRequestID, Meta(None, "test-id", 1, Some("bitstamp"), None, None, Some("arn"), None))
     val theResponds = writeDatabaseActor.expectMsgType[(String, Meta)]._2
     assert(theResponds.price.isDefined)
     assert(theResponds.price.get >= 0)
@@ -43,7 +43,7 @@ class Step2_GetPriceTimeActorTest extends MessagingTest {
 
   "when receiving 'Meta' with unvalid exchnage it" should
     "send a 'SignalProcessingException' to the respondsActor" in {
-    actor ! (globalRequestID, Meta(Some(respondsActor.ref), "test-id", 1, Some("lol"), None, None, Some("arn")))
+    actor ! (globalRequestID, Meta(Some(respondsActor.ref), "test-id", 1, Some("lol"), None, None, Some("arn"), None))
     writeDatabaseActor.expectNoMsg()
     respondsActor.expectMsgType[SignalProcessingException]
   }

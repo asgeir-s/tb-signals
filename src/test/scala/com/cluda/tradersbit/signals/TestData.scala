@@ -6,6 +6,7 @@ import com.cluda.tradersbit.signals.model.{Signal, Meta}
 object TestData {
   val timestamp = 1432380666636L
   val signal1 = Signal(Some(1), 1, timestamp, BigDecimal(234.453), BigDecimal(0), BigDecimal(100), BigDecimal(0), BigDecimal(100))
+  val streamName= Some("test33")
 
   val signalSeq = Seq(
     Signal(Some(13), 1, timestamp, BigDecimal(234.453), BigDecimal(0), BigDecimal(100), BigDecimal(0), BigDecimal(100)),
@@ -33,12 +34,12 @@ object TestData {
   )
 
   val metaSignalSeqMath = Seq(
-    Meta(None, "test-id-math", 0, Some("bitstamp"), Some(975), Some(timestamp - 70000), None),
-    Meta(None, "test-id-math", 1, Some("bitstamp"), Some(650), Some(timestamp - 80000), None),
-    Meta(None, "test-id-math", 0, Some("bitstamp"), Some(450), Some(timestamp - 90000), None),
-    Meta(None, "test-id-math", -1, Some("bitstamp"), Some(300), Some(timestamp - 100000), None),
-    Meta(None, "test-id-math", 0, Some("bitstamp"), Some(200), Some(timestamp - 110000), None),
-    Meta(None, "test-id-math", 1, Some("bitstamp"), Some(100), Some(timestamp - 120000), None)
+    Meta(None, "test-id-math", 0, Some("bitstamp"), Some(975), Some(timestamp - 70000), None, streamName),
+    Meta(None, "test-id-math", 1, Some("bitstamp"), Some(650), Some(timestamp - 80000), None, streamName),
+    Meta(None, "test-id-math", 0, Some("bitstamp"), Some(450), Some(timestamp - 90000), None, streamName),
+    Meta(None, "test-id-math", -1, Some("bitstamp"), Some(300), Some(timestamp - 100000), None, streamName),
+    Meta(None, "test-id-math", 0, Some("bitstamp"), Some(200), Some(timestamp - 110000), None, streamName),
+    Meta(None, "test-id-math", 1, Some("bitstamp"), Some(100), Some(timestamp - 120000), None, streamName)
   )
 
 }

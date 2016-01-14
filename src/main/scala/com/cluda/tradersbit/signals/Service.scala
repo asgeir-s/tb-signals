@@ -103,7 +103,7 @@ trait Service {
                         logger.info(s"[$globalRequestID]: Got new signal: $signal. For stream: $streamID.")
                         perRequestActor[Meta](
                           PostSignalActor.props(globalRequestID, getExchangeActor),
-                          Meta(None, streamID, signal, None, None, None, None))
+                          Meta(None, streamID, signal, None, None, None, None, None))
                       }
                       else {
                         logger.error(s"[$globalRequestID]: Got unknown signal: $signal. Returning 'BadRequest'. For stream: $streamID.")

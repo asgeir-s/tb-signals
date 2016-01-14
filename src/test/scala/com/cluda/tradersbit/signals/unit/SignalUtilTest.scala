@@ -9,6 +9,8 @@ import com.cluda.tradersbit.signals.util.SignalUtil
 
 class SignalUtilTest extends UnitTest {
 
+  val streamName = Some("test22")
+
   def signalsValuesEqual(signal1: Signal, signal2: Signal): Boolean = {
     signal1.change.toDouble == signal2.change.toDouble &&
       signal1.price == signal2.price &&
@@ -52,7 +54,7 @@ class SignalUtilTest extends UnitTest {
 
     val newSignals = SignalUtil.newSignals(
       Signal(Some(1), 1, 1432380666636L - 120000, BigDecimal(100), BigDecimal(0), BigDecimal(1), BigDecimal(-0.002), BigDecimal(1)),
-      Meta(None, "test-id-math", 0, Some("bitfinex"), Some(200), Some(1432380666636L - 120000), None))
+      Meta(None, "test-id-math", 0, Some("bitfinex"), Some(200), Some(1432380666636L - 120000), None, streamName))
 
     import SignalJsonProtocol._
     import spray.json._

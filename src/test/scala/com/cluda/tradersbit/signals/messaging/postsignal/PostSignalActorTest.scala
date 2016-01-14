@@ -24,7 +24,7 @@ class PostSignalActorTest extends MessagingTest {
     val parent = TestProbe()
     val actor = TestActorRef(Props(new PostSignalActor(globalRequestID, getExchangeActor.ref)), parent.ref, "postSignalActorTest")
 
-    actor ! Meta(None, "test-id", 1, None, None, None, None)
+    actor ! Meta(None, "test-id", 1, None, None, None, None, None)
     val newMeta = getExchangeActor.expectMsgType[(String, Meta)]._2
     assert(newMeta.respondsActor.get == actor)
   }
@@ -36,7 +36,7 @@ class PostSignalActorTest extends MessagingTest {
     val interface = TestProbe()
 
     val actor = TestActorRef(Props(new PostSignalActor(globalRequestID, getExchangeActor.ref)), "postSignalActorTest2")
-    interface.send(actor, Meta(None, "test-id", 1, None, None, None, None)) // become reponder
+    interface.send(actor, Meta(None, "test-id", 1, None, None, None, None, None)) // become reponder
 
     getExchangeActor.expectMsgType[(String, Meta)]
 
@@ -61,7 +61,7 @@ class PostSignalActorTest extends MessagingTest {
     val interface = TestProbe()
 
     val actor = TestActorRef(Props(new PostSignalActor(globalRequestID, getExchangeActor.ref)), "postSignalActorTest3")
-    interface.send(actor, Meta(None, "test-id", 1, None, None, None, None)) // become reponder
+    interface.send(actor, Meta(None, "test-id", 1, None, None, None, None, None)) // become reponder
 
     actor ! SignalProcessingException("some error")
     val responseParent = interface.expectMsgType[HttpResponse]

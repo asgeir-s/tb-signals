@@ -59,7 +59,7 @@ class NotifyActorTest extends MessagingTest {
     "should send a notification to the SNS topic and send HTTP-notifications with the signal" in {
     val streamID = "test-stream-id"
     val actor = TestActorRef(NotifyActor.props(httpNotifierProbe.ref), "notifyActor1")
-    actor ! (globalRequestID, streamID, topicArn, Seq(TestData.signal1))
+    actor ! (globalRequestID, streamID, topicArn, "streamName", Seq(TestData.signal1))
     val messageToHttpNotifier1 = httpNotifierProbe.expectMsgType[(String, HttpNotification, Int)]
     //println(messageToHttpNotifier1._1.uri + " - " + "test1.com" + streamID +"signal")
     //assert(messageToHttpNotifier1.uri == "test1.com/" + streamID +"/signal")

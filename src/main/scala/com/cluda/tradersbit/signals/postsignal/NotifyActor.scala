@@ -30,15 +30,18 @@ class NotifyActor(httpNotifierActor: ActorRef) extends Actor with ActorLogging {
   snsClient.setRegion(Region.getRegion(Regions.fromName(config.getString("aws.sns.region"))))
 
   override def receive: Receive = {
-    case (globalRequestID: String, streamID: String, arn: String, signals: Seq[Signal]) =>
+    case (globalRequestID: String, streamID: String, arn: String,  streamName: String, signals: Seq[Signal]) =>
       log.info(s"[$globalRequestID]: Received " + signals.length + "new signal(s).")
       import SignalJsonProtocol._
       import spray.json._
 
       val signalsString = signals.map(_.toJson).toJson.prettyPrint
+      val notificationJson = Map("streamName"-> streamName.toJson, "streamId" -> streamID.toJson,"signals" -> signals.map(_.toJson).toJson).toJson.prettyPrint
 
+      println("signalsString: " + signalsString)
+      println("notificationJson: " + notificationJson)
       //publish to an SNS topic
-      val publishRequest: PublishRequest = new PublishRequest(arn, signalsString)
+      val publishRequest: PublishRequest = new PublishRequest(arn, notificationJson)
       val publishResult: PublishResult = snsClient.publish(publishRequest)
 
       //print MessageId of message published to SNS topic

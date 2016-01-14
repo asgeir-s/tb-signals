@@ -42,8 +42,8 @@ class Step1_StreamInfoActor(getPriceActor: ActorRef) extends Actor with ActorLog
     )
   }
 
-  def getExchangeAndArn(globalRequestID: String, streamID: String): Future[(String, String)] = {
-    val promise = Promise[(String, String)]()
+  def getExchangeAndArnANdName(globalRequestID: String, streamID: String): Future[(String, String, String)] = {
+    val promise = Promise[(String, String, String)]()
     val theFuture = promise.future
     doGet(globalRequestID, streamInfoHost, "/streams/" + streamID + "?private=true").map { x =>
       if (x.status == StatusCodes.NotFound) {
@@ -51,11 +51,13 @@ class Step1_StreamInfoActor(getPriceActor: ActorRef) extends Actor with ActorLog
         promise.failure(new Exception(s"[$globalRequestID]: NO stream with that ID"))
       }
       Unmarshal(x.entity).to[String].map { string =>
-          val exchange = string.parseJson.asJsObject.getFields("exchange").head.toString()
-          val arn = string.parseJson.asJsObject.fields.get("streamPrivate").get.asJsObject
+        val json = string.parseJson.asJsObject
+          val exchange = json.getFields("exchange").head.toString()
+          val arn = json.fields.get("streamPrivate").get.asJsObject
             .getFields("topicArn").head.toString()
+          val streamName = json.getFields("name").head.toString()
           log.info(s"[$globalRequestID]: Got responds from stream-info: that exchange: " + exchange + ", topicArn: " + arn)
-          promise.success((exchange, arn))
+          promise.success((exchange, arn, streamName))
         }
     }
     theFuture
@@ -65,9 +67,9 @@ class Step1_StreamInfoActor(getPriceActor: ActorRef) extends Actor with ActorLog
     case (globalRequestID: String, meta: Meta) =>
       log.info(s"[$globalRequestID]: Got meta: " + meta)
 
-      getExchangeAndArn(globalRequestID, meta.streamID).map {
-        case (exchangeName: String, awsARN: String) =>
-          getPriceActor ! (globalRequestID, MetaUtil.setExchangeAndARN(meta, exchangeName, awsARN))
+      getExchangeAndArnANdName(globalRequestID, meta.streamID).map {
+        case (exchangeName: String, awsARN: String, streamName: String) =>
+          getPriceActor ! (globalRequestID, MetaUtil.setExchangeAndARN(meta, exchangeName, awsARN).copy(streamName = Some(streamName)))
       }.recover {
         case _ =>
           log.error(s"[$globalRequestID]: Cold not get the exchange and aws-sns-arn for the streamID: " + meta.streamID)
