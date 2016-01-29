@@ -24,7 +24,47 @@ class Step3_WriteDatabaseActorTest extends MessagingTest {
   val respondsActor = TestProbe()
   val notificationActor = TestProbe()
 
-  val actor = TestActorRef(Step3_WriteDatabaseActor.props(notificationActor.ref), "getPriceActor")
+  val actor = TestActorRef(Step3_WriteDatabaseActor.props(notificationActor.ref), "writeDBActor")
+
+  "when receiving 'Meta' about signals starting with SHORT and going directly to LONG it" should
+    "calculate the valueInclFee correctly" in {
+    val newStreamID = UUID.randomUUID().toString
+
+    val streamName = Some(newStreamID + "Name")
+
+    val respondsActor = TestProbe()
+    val notificationActor = TestProbe()
+
+    val actor = TestActorRef(Step3_WriteDatabaseActor.props(notificationActor.ref), "writeDBActor2")
+
+    actor ! (globalRequestID, Meta(Some(respondsActor.ref), newStreamID, -1, Some("bitfinex"), Some(BigDecimal(382.2100)), Some(1454000046080l), Some("arn"), streamName))
+    val theResponds1 = respondsActor.expectMsgType[Seq[Signal]]
+    println(theResponds1)
+    assert(theResponds1.length == 1)
+    assert(theResponds1.head.valueInclFee >= 1)
+
+    actor ! (globalRequestID, Meta(Some(respondsActor.ref), newStreamID, 1, Some("bitfinex"), Some(BigDecimal(367.1100)), Some(1454045134848l), Some("arn"), streamName))
+    val theResponds3 = respondsActor.expectMsgType[Seq[Signal]]
+    println("imp: " + theResponds3.last)
+    println("imp: " + theResponds3.head)
+
+    assert(theResponds3.length == 2)
+    assert(theResponds3.head.valueInclFee >= 1)
+
+    actor ! (globalRequestID, Meta(Some(respondsActor.ref), newStreamID, 0, Some("bitfinex"), Some(BigDecimal(368.0800)), Some(1454045265920l), Some("arn"), streamName))
+    val theResponds4 = respondsActor.expectMsgType[Seq[Signal]]
+    println(theResponds4)
+    assert(theResponds4.length == 1)
+    assert(theResponds4.head.valueInclFee >= 1)
+
+    actor ! (globalRequestID, Meta(Some(respondsActor.ref), newStreamID, -1, Some("bitfinex"), Some(BigDecimal(370.3700)), Some(1454046445568l), Some("arn"), streamName))
+    val theResponds5 = respondsActor.expectMsgType[Seq[Signal]]
+    println(theResponds5)
+    assert(theResponds5.length == 1)
+    assert(theResponds5.head.valueInclFee >= 1)
+  }
+
+
 
   "when receiving 'Meta' about a new signal LONG it" should
     "write the signal to the database and return the new signal to the 'respondsActor'" in {

@@ -55,7 +55,7 @@ class Step3_WriteDatabaseActor(notificationActor: ActorRef) extends Actor with A
 
             }
             else {
-              log.info(s"[$globalRequestID]: This is the first signal.")
+              //log.info(s"[$globalRequestID]: This is the first signal.")
               database.run(signalsTable.sortBy(_.id.desc).result.head) map { lastSignal: Signal =>
                 val newSignals = SignalUtil.newSignals(lastSignal, meta)
                 if (newSignals.nonEmpty) {
