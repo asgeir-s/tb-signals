@@ -26,7 +26,7 @@ Error: ava.security.InvalidKeyException: Illegal key size or default parameters 
 	RDS_PORT
 	RDS_DB_NAME
 	RDS_USERNAME
-	RDS_PASSWORD
+	RDS_PASSWORD_NEW (OBS: must be set!)
 	
 ### Test parameters
     MICROSERVICES_HTTPS=false
