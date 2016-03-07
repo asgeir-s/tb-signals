@@ -57,9 +57,11 @@ object SignalUtil {
       val relativeChange = (BigDecimal(1) / lastPrice) * priceChange
       val newValue = lastValue * (BigDecimal(1) + relativeChange)
 
+      val valueInclFeeForFirst = lastValueInclFee * (1 + (relativeChange - fee))
+
       List(
-        Signal(id, 0, timestamp, price, relativeChange, newValue, relativeChange - fee, lastValueInclFee * (1 + (relativeChange - fee))),
-        Signal(id, signal, timestamp, price, 0, newValue, -fee, lastValueInclFee * (1 - fee))
+        Signal(id, 0, timestamp, price, relativeChange, newValue, relativeChange - fee, valueInclFeeForFirst),
+        Signal(id, signal, timestamp, price, 0, newValue, -fee, valueInclFeeForFirst * (1 - fee))
       )
     }
     else if (lastSignal.signal == -1 && signal == 1) {
@@ -67,11 +69,11 @@ object SignalUtil {
       val relativeChange = (BigDecimal(1) / lastPrice) * priceChange
       val newValue = lastValue * (BigDecimal(1) + relativeChange)
 
-      val valieInclFeeForFirst = lastValueInclFee * (1 + (relativeChange - fee))
+      val valueInclFeeForFirst = lastValueInclFee * (1 + (relativeChange - fee))
 
       List(
-        Signal(id, 0, timestamp, price, relativeChange, newValue, relativeChange - fee, valieInclFeeForFirst),
-        Signal(id, signal, timestamp, price, 0, newValue, -fee, valieInclFeeForFirst * (1 - fee))
+        Signal(id, 0, timestamp, price, relativeChange, newValue, relativeChange - fee, valueInclFeeForFirst),
+        Signal(id, signal, timestamp, price, 0, newValue, -fee, valueInclFeeForFirst * (1 - fee))
       )
     }
     else {
