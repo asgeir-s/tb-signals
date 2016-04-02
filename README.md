@@ -6,7 +6,7 @@ Error: ava.security.InvalidKeyException: Illegal key size or default parameters 
 
 ## Interface
 	POST: /streams/'streamID'/signals 	{'-1,0 or 1'} => the signal
-	GET:  /streams/'streamID'/signals? (optional URL-params: fromId, toId, afterTime, beforeTime and lastN (see combinations at the bottom of this page)) => all signals
+	GET:  /streams/'streamID'/signals? (optional URL-params: onlyClosed, fromId, toId, afterTime, beforeTime and lastN (see combinations at the bottom of this page)) => all signals
 	GET:  /streams/'streamID'/status => last signal
 	
 ## Environment Variables
@@ -68,6 +68,7 @@ One time setup:
 	-deploy-p (deploy in production)
 	
 ## Valid GET requests parameter combinations:
+	onlyClosed		=>  alle lukkede handler (the last signal is CLOSE)
 	fromId,   toId      	=>  alle signaler mellom 			(not including)
 	afterTime, beforeTime   =>  alle signaler mellom 			(not including)
 	afterId              	=>  alle signaler fra id og opp 	(not including)
