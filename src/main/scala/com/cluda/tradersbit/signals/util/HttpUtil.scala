@@ -23,7 +23,7 @@ object HttpUtil {
     )(implicit system: ActorSystem,  materializer: ActorMaterializer): Future[HttpResponse] = {
 
     val _outgoingConn = if (isHttps) {
-      Http().outgoingConnectionTls(baseUri)
+      Http().outgoingConnectionHttps(baseUri)
     } else {
       Http().outgoingConnection(baseUri)
     }

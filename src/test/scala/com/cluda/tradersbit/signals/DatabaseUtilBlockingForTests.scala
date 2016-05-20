@@ -4,7 +4,7 @@ import com.cluda.tradersbit.signals.database.SignalTable
 import com.typesafe.config.ConfigFactory
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcBackend.Database
-import slick.jdbc.{JdbcBackend, StaticQuery}
+import slick.jdbc.JdbcBackend
 import slick.lifted.TableQuery
 
 import scala.concurrent.duration._
@@ -18,10 +18,11 @@ object DatabaseUtilBlockingForTests {
     implicit val ec = executionContext
 
     try {
-      (StaticQuery.u + "DROP TABLE " + tableName).execute
+      //(StaticQuery.u + "DROP TABLE " + tableName).execute
+      Await.result(database.run(sqlu"DROP TABLE #$tableName"), 5.seconds)
     } catch {
-      case _: Throwable =>
-        // ignore
+      case e: Throwable =>
+        println("some error: " + e)
     }
   }
 

@@ -2,7 +2,7 @@ package com.cluda.tradersbit.signals
 
 import java.util.UUID
 
-import akka.actor.{ActorRef, ActorSystem, Props}
+import akka.actor.{ActorRef, ActorSystem, InvalidActorNameException, Props}
 import akka.event.LoggingAdapter
 import akka.http.scaladsl.model.{HttpHeader, HttpResponse}
 import akka.http.scaladsl.model.StatusCodes._
@@ -15,11 +15,10 @@ import com.cluda.tradersbit.signals.protocoll.GetSignalsParams
 import com.cluda.tradersbit.signals.getsignal.GetSignalsActor
 import com.cluda.tradersbit.signals.model.Meta
 import com.cluda.tradersbit.signals.postsignal.PostSignalActor
-import com.cluda.tradersbit.signals.protocoll.{GetSignalsParams, GetSignals}
+import com.cluda.tradersbit.signals.protocoll.{GetSignals, GetSignalsParams}
 import com.typesafe.config.Config
 import spray.json._
 import DefaultJsonProtocol._
-
 
 import scala.concurrent.{ExecutionContextExecutor, Future}
 
@@ -67,14 +66,25 @@ trait Service {
     * @param props of the actor to start
     * @return Future[HttpResponse]
     */
-  def perRequestActor[T](props: Props, message: T): Future[HttpResponse] = {
-    (system.actorOf(props, actorName(props)) ? message)
-      .recover { case _ => HttpResponse(InternalServerError, entity = "InternalServerError") }
-      .asInstanceOf[Future[HttpResponse]]
+  def perRequestActor[T](props: Props, message: T, name: Option[String] = None): Future[HttpResponse] = {
+    try {
+      (system.actorOf(props, name.getOrElse(actorName(props))) ? message).asInstanceOf[Future[HttpResponse]]
+    }
+    catch {
+      case e: InvalidActorNameException => {
+        logger.warning("Responded with: TooManyRequests")
+        Future(HttpResponse(TooManyRequests, entity = "Only one signal can be processed for a stream at the time. " +
+          "wait for responds to your last signal before send a new signal."))
+      }
+      case _ => {
+        logger.error("Responded with: InternalServerError")
+        Future(HttpResponse(InternalServerError, entity = "InternalServerError"))
+      }
+    }
   }
 
   def auth: RequestContext => Boolean = (ctx: RequestContext) => {
-    ctx.request.getHeader("Authorization").asScala match {
+    ctx.request.headers.find(_.is("authorization")) match {
       case Some(header: HttpHeader) =>
         val thisApiKey = header.value().split(" ")(1)
         thisApiKey.equals(apiKey)
@@ -103,7 +113,8 @@ trait Service {
                         logger.info(s"[$globalRequestID]: Got new signal: $signal. For stream: $streamID.")
                         perRequestActor[Meta](
                           PostSignalActor.props(globalRequestID, getExchangeActor),
-                          Meta(None, streamID, signal, None, None, None, None, None))
+                          Meta(None, streamID, signal, None, None, None, None, None),
+                          Some(streamID + "-post_signal"))
                       }
                       else {
                         logger.error(s"[$globalRequestID]: Got unknown signal: $signal. Returning 'BadRequest'. For stream: $streamID.")

@@ -6,11 +6,11 @@ import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import com.cluda.tradersbit.signals.model.Meta
 import com.cluda.tradersbit.signals.protocoll.SignalProcessingException
 import com.cluda.tradersbit.signals.util.MetaUtil
-import com.xeiam.xchange.bitfinex.v1.BitfinexExchange
-import com.xeiam.xchange.bitstamp.BitstampExchange
-import com.xeiam.xchange.currency.CurrencyPair
-import com.xeiam.xchange.service.polling.marketdata.PollingMarketDataService
-import com.xeiam.xchange.{Exchange, ExchangeFactory}
+import org.knowm.xchange.bitfinex.v1.BitfinexExchange
+import org.knowm.xchange.bitstamp.BitstampExchange
+import org.knowm.xchange.currency.CurrencyPair
+import org.knowm.xchange.service.polling.marketdata.PollingMarketDataService
+import org.knowm.xchange.{Exchange, ExchangeFactory}
 
 class Step2_GetPriceTimeActor(writeDatabaseActor: ActorRef) extends Actor with ActorLogging {
 
