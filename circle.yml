@@ -8,7 +8,7 @@ machine:
   environment:
       THE_BRIDGE_IP: $(/sbin/ip route|awk '/default/ { print $3 }')
       AWS_DEFAULT_REGION: us-west-2
-      RDS_HOSTNAME: 172.16.143.1
+      RDS_HOSTNAME: $(/sbin/ip route|awk '/default/ { print $3 }')
 
 dependencies:
   pre:
