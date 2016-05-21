@@ -32,7 +32,7 @@ class Step2_GetPriceTimeActor(writeDatabaseActor: ActorRef) extends Actor with A
     }
     if (exchange isDefined) {
       val marketDataService: PollingMarketDataService = exchange.get.getPollingMarketDataService
-      if (refreshTime(exchangeName) + 2000 <= Calendar.getInstance().getTimeInMillis) {
+      if (refreshTime(exchangeName) + 1000 <= Calendar.getInstance().getTimeInMillis) {
         try {
           val tick = marketDataService.getTicker(CurrencyPair.BTC_USD)
           price = price.updated(exchangeName, tick.getAsk)
