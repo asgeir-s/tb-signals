@@ -33,7 +33,6 @@ test:
     - sudo /etc/init.d/postgresql restart
     - make setup-db
   override:
-    # 172.17.42.1 should be equal to THE_BRIDGE_IP
     - make test-u
     - make test-s
 
