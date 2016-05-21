@@ -34,7 +34,7 @@ libraryDependencies ++= {
     ("org.knowm.xchange"     %    "xchange-bitfinex"                        %     xchangeV).exclude("com.pusher", "pusher-java-client"),
     ("org.knowm.xchange"     %    "xchange-bitstamp"                        %     xchangeV).exclude("com.pusher", "pusher-java-client"),
     "com.typesafe.slick"    %%    "slick"                                   %     "3.1.1",
-    "org.postgresql"         %    "postgresql"                              %     "9.4.1208.jre7",
+    "org.postgresql"         %    "postgresql"                              %     "9.4.1208",
     "com.amazonaws"          %    "aws-java-sdk-sns"                        %     "1.11.2",
     "commons-codec"          %    "commons-codec"                           %     "1.10",
     "org.bitbucket.b_c"      %    "jose4j"                                  %     "0.5.1",
