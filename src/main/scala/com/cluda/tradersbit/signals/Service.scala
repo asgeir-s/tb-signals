@@ -11,7 +11,6 @@ import akka.http.scaladsl.server.RequestContext
 import akka.pattern.ask
 import akka.stream.Materializer
 import akka.util.Timeout
-import com.cluda.tradersbit.signals.protocoll.GetSignalsParams
 import com.cluda.tradersbit.signals.getsignal.GetSignalsActor
 import com.cluda.tradersbit.signals.model.Meta
 import com.cluda.tradersbit.signals.postsignal.PostSignalActor

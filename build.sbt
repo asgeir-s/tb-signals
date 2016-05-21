@@ -38,7 +38,8 @@ libraryDependencies ++= {
     "com.amazonaws"          %    "aws-java-sdk-sns"                        %     "1.11.2",
     "commons-codec"          %    "commons-codec"                           %     "1.10",
     "org.bitbucket.b_c"      %    "jose4j"                                  %     "0.5.1",
-    "ch.qos.logback"         %    "logback-classic"                         %     "1.1.7"
+    "ch.qos.logback"         %    "logback-classic"                         %     "1.1.7",
+    "com.amazonaws"          %    "aws-java-sdk-dynamodb"                   %     "1.11.3"
 
   )
 }

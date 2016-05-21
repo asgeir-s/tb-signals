@@ -1,18 +1,17 @@
 package com.cluda.tradersbit.signals.postsignal
 
 import akka.actor._
-import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.HttpMethods._
-import akka.http.scaladsl.model.headers.RawHeader
-import akka.http.scaladsl.model.{HttpMethods, StatusCodes, HttpRequest, HttpResponse}
-import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.ActorMaterializer
-import akka.stream.scaladsl.{Sink, Source}
+import com.amazonaws.regions.RegionUtils
 import com.cluda.tradersbit.signals.model.Meta
 import com.cluda.tradersbit.signals.protocoll.SignalProcessingException
-import com.cluda.tradersbit.signals.util.{HttpUtil, MetaUtil}
+import com.cluda.tradersbit.signals.util.MetaUtil
 import com.typesafe.config.ConfigFactory
-import spray.json._
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
+import com.amazonaws.services.dynamodbv2.document.DynamoDB
+import com.amazonaws.services.dynamodbv2.document.Item
+import com.amazonaws.services.dynamodbv2.document.Table
+import com.amazonaws.services.dynamodbv2.document.spec.GetItemSpec
 
 import scala.concurrent.{Future, Promise}
 
@@ -29,36 +28,35 @@ class Step1_StreamInfoActor(getPriceActor: ActorRef) extends Actor with ActorLog
   val config = ConfigFactory.load()
   val streamInfoHost = config.getString("microservices.streams")
   val streamInfoPort = config.getInt("microservices.streamsPort")
-  private val https = config.getBoolean("microservices.https")
-  private val authorizationHeader = RawHeader("Authorization", "apikey " + config.getString("microservices.streamsApiKey"))
 
-  def doGet(globalRequestID: String, host: String, path: String, port: Int = streamInfoPort): Future[HttpResponse] = {
-    HttpUtil.request(
-      HttpMethods.GET,
-      https,
-      host,
-      path,
-      headers = List(RawHeader("Global-Request-ID", globalRequestID), authorizationHeader)
-    )
-  }
+  val client: AmazonDynamoDBClient = new AmazonDynamoDBClient()
+  client.setRegion(RegionUtils.getRegion(config.getString("aws.dynamo.region")))
+  val dynamoDB: DynamoDB = new DynamoDB(client)
+  val table: Table = dynamoDB.getTable(config.getString("aws.dynamo.streamsTable"))
 
+  /**
+    * get stream with dynamoDB
+    * @param globalRequestID
+    * @param streamID
+    * @return
+    */
   def getExchangeAndArnANdName(globalRequestID: String, streamID: String): Future[(String, String, String)] = {
     val promise = Promise[(String, String, String)]()
     val theFuture = promise.future
-    doGet(globalRequestID, streamInfoHost, "/streams/" + streamID + "?private=true").map { x =>
-      if (x.status == StatusCodes.NotFound) {
-        log.warning(s"[$globalRequestID]: Got responds from stream-info that their is no stream with id: " + streamID)
+
+    val spec: GetItemSpec = new GetItemSpec()
+      .withPrimaryKey("id", streamID)
+      .withAttributesToGet("exchange", "topicArn", "name")
+
+    try {
+      val outcome: Item = table.getItem(spec)
+      promise.success((outcome.getString("exchange"), outcome.getString("topicArn"), outcome.getString("name")))
+    } catch {
+      case e: Throwable => {
         promise.failure(new Exception(s"[$globalRequestID]: NO stream with that ID"))
+        println("Unable to get stream with id: " + streamID)
+        println(e.getMessage)
       }
-      Unmarshal(x.entity).to[String].map { string =>
-        val json = string.parseJson.asJsObject
-          val exchange = json.getFields("exchange").head.toString()
-          val arn = json.fields.get("streamPrivate").get.asJsObject
-            .getFields("topicArn").head.toString()
-          val streamName = json.getFields("name").head.toString().replace("\"", "")
-          log.info(s"[$globalRequestID]: Got responds from stream-info: that exchange: " + exchange + ", topicArn: " + arn)
-          promise.success((exchange, arn, streamName))
-        }
     }
     theFuture
   }

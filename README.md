@@ -13,6 +13,8 @@ Error: ava.security.InvalidKeyException: Illegal key size or default parameters 
 	AWS_ACCESS_KEY_ID (default 'none')
 	AWS_SECRET_KEY (default 'none')
 	AWS_SNS_REGION (default 'none')
+	AWS_DYNAMO_REGION (default 'none')
+	AWS_DYNAMO_STREAMS_TABLE (default 'none')
 
     MICROSERVICES_HTTPS
 	STREAMS_SERVICE_ADDRESS (default 'none')
@@ -29,6 +31,8 @@ Error: ava.security.InvalidKeyException: Illegal key size or default parameters 
 	RDS_PASSWORD_NEW (OBS: must be set!)
 	
 ### Test parameters
+	AWS_DYNAMO_REGION=us-west-2
+	AWS_DYNAMO_STREAMS_TABLE=streams-staging
     MICROSERVICES_HTTPS=false
     SERVICE_APIKEY=secret
 	AWS_SNS_REGION=us-west-2
