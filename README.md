@@ -26,9 +26,9 @@ TradersBit will also host trading competitions. For instance, most profitable st
 * [tb-streams](https://github.com/sogasg/tb-streams) - microservice for handling stats for streams of trading signals
 
 ## API
-	* **POST: /streams/'streamID'/signals** body: -1,0 or 1 => the signal
-	* **GET: /streams/'streamID'/signals?** (optional URL-params: onlyClosed, fromId, toId, afterTime, beforeTime and lastN (see combinations at the bottom of this page)) => all signals
-	* **GET: /streams/'streamID'/status** => last signal
+ * **POST: /streams/'streamID'/signals** body: -1,0 or 1 => the signal
+ * **GET: /streams/'streamID'/signals?** (optional URL-params: onlyClosed, fromId, toId, afterTime, beforeTime and lastN (see combinations at the bottom of this page)) => all signals
+ * **GET: /streams/'streamID'/status** => last signal
 	
 ## Environment Variables
 	AWS_ACCESS_KEY_ID (default 'none')
