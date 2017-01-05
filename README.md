@@ -1,5 +1,5 @@
 # Signals Microservice
-Microservice used for handleing trading signals in the tradersbit project.TradersBit is shut down and open sourced.
+Microservice used for handling trading signals in the tradersbit project. TradersBit is shut down and open sourced.
 
 ## What is TradersBit?
 TradersBit is (was a) a marketplace for streams of Bitcoin trading signals.
